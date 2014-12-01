@@ -1,18 +1,62 @@
-/.bundle/
-/.yardoc
-/Gemfile.lock
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-*.bundle
-*.so
-*.o
+# Build
 *.a
-console
+*.o
+*.so
+/pkg
 mkmf.log
-references
+
+# Bundler Trash
+*/.bundle
+**/*/.bundle
+vendor/bundle
+Gemfile.lock
+
+# Database
+config/database.yml
+db/*.sqlite3
+
+# Foreman
+Profile.user
+
+# Redis
+*.rdb
+
+# Tests & Doc
+.yardoc
+_yardoc
+doc
+coverage
+
+# Config
+config
+
+# RVM specific files
+.rvmrc
+.ruby-gemset
+.ruby-version
+
+# Vagrant & Chef
+.vagrant
+package.box
+chef/tmp/**/*
+chef/cookbooks/**/*
+
+# OS Trash
+**/*/.DS_Store
+*/.DS_Store
+.DS_Store
+.idea
+.sass-cache
+
+# Debug
+console
+todo
 debug
 drafts
+references
+
+# Log
+log
+
+# Tmp
+tmp
