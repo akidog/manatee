@@ -1,0 +1,24 @@
+
+# _to_partial_path
+# button
+# check_box
+# collection_check_boxes
+# collection_radio_buttons
+# collection_select
+# date_select
+# datetime_select
+# emitted_hidden_id?
+# fields_for
+# file_field
+# grouped_collection_select
+# hidden_field
+# label
+# multipart=
+# new
+# radio_button
+# select
+# submit
+# time_select
+# time_zone_select
+# to_model
+# to_partial_path

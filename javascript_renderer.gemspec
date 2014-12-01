@@ -1,0 +1,32 @@
+# coding: utf-8
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'javascript_renderer/version'
+
+Gem::Specification.new do |spec|
+  spec.name          = 'javascript_renderer'
+  spec.version       = JavascriptRenderer::VERSION
+  spec.summary       = %q{Javascript Template Render [for Rails]?}
+  spec.description   = %q{Render javascript templates on server side}
+  spec.homepage      = ''
+  spec.license       = 'MIT'
+
+  spec.authors       = ['Dalton Pinto']
+  spec.email         = ['dalthon@aluno.ita.br']
+
+  spec.files         = Dir['{app,bin,lib,test,spec}/**/*'] + ['javascript_renderer.gemspec', 'LICENSE.txt', 'Rakefile', 'Gemfile', 'README.mdown']
+  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.executables   = spec.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
+
+  spec.require_paths = ['lib']
+
+  spec.add_dependency 'i18n-js'
+
+  spec.add_dependency 'execjs'
+  spec.add_dependency 'sprockets'
+  spec.add_dependency 'coffee-script'
+
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency 'nokogiri'
+end

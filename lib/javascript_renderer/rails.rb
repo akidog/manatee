@@ -1,0 +1,5 @@
+require 'javascript_renderer/rails/handler'
+require 'javascript_renderer/rails/resolver'
+require 'javascript_renderer/rails/extensions'
+require 'javascript_renderer/rails/hash_visitor'
+require 'javascript_renderer/rails/routes_compiler'

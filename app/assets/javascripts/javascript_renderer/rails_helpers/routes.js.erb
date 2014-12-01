@@ -1,0 +1,195 @@
+var <%= JavascriptRenderer.router_namespace %> = function(){
+
+  var RoutesVisitor = function(){
+
+    function call(options, node){
+      this.options  = options;
+      this.consumed = {};
+      return this.visit(node);
+    }
+
+    function visit(node){
+      return this['visit'+node.type](node);
+    }
+
+    function nary(node){
+      var result = '';
+      for(var n in node.children){
+        result += this.visit(n);
+      }
+      return result;
+    }
+
+    function binary(node){
+      return this.visit( node.children[0] ) + this.visit( node.children[1] );
+    }
+
+    function unary(node){
+      return this.visit(node.children[0]);
+    }
+
+    function terminal(node){
+      return node.value;
+    }
+
+    function visitCAT(node){
+      return this.binary(node);
+    }
+
+    function visitOR(node){
+      return this.nary(node);
+    }
+
+    function visitGROUP(node){
+      if(compareObjects(this.options, this.consumed)){
+        return '';
+      } else {
+        var route = this.visit(node.children[0]);
+
+        if(this.hasNullByte(route)){
+          return '';
+        } else {
+          return route;
+        }
+      }
+    }
+
+    function visitSTAR(node){
+      return this.unary(node);
+    }
+
+    function visitLITERAL(node){
+      return this.terminal(node);
+    }
+
+    function visitSYMBOL(node){
+      var key   = node.value.substring(1, node.value.lenght);
+      var value = this.options[key];
+
+      if(value){
+        this.consumed[key] = value;
+        return encodeURIComponent(value.toString());
+      } else {
+        return "\0";
+      }
+    }
+
+    function visitSLASH(node){
+      return this.terminal(node);
+    }
+
+    function visitDOT(node){
+      return this.terminal(node);
+    }
+
+    // Utils
+
+    function hasNullByte(string){
+      for(var i in string){
+        if( string[i] == "\0" ) return true;
+      }
+      return false;
+    }
+
+    function compareObjects(obj1, obj2){
+      return objectCount(obj1) == objectCount(obj2);
+    }
+
+    function objectCount(obj){
+      var count = 0;
+      for( var i in obj ){ count++; }
+      return count;
+    }
+
+    return {
+      call:           call,
+      hasNullByte:    hasNullByte,
+      compareObjects: compareObjects,
+      objectCount:    objectCount,
+
+      binary:       binary,
+      nary:         nary,
+      terminal:     terminal,
+      unary:        unary,
+      visit:        visit,
+      visitCAT:     visitCAT,
+      visitDOT:     visitDOT,
+      visitGROUP:   visitGROUP,
+      visitLITERAL: visitLITERAL,
+      visitOR:      visitOR,
+      visitSLASH:   visitSLASH,
+      visitSTAR:    visitSTAR,
+      visitSYMBOL:  visitSYMBOL
+    };
+  }();
+
+  function pathFunctionBuilder(route){
+    return function(){
+      if( arguments.length != this.required_names.length && arguments.length != this.required_names.length + 1){
+        throw 'Argument Error';
+      } else {
+        var options = arguments[this.required_names.length];
+
+        var params = {};
+        for(var i in this.required_names){
+          var key = this.required_names[i];
+          params[key] = arguments[i];
+        }
+
+        var optionalMap = {};
+        for(var i in this.optional_names){
+          optionalMap[this.optional_names[i]] = true;
+        }
+
+        var queryParams = {};
+        for(var k in options){
+          if(optionalMap[k]){
+            params[k] = options[k];
+          } else {
+            queryParams[k] = options[k];
+          }
+        }
+
+        return H.urlFor(this._router._visitor.call(params, this.ast));
+      }
+    };
+  }
+
+  function urlHelper(){
+    return this._router._fullDomain + this.path.apply(this, arguments);
+  }
+
+  var compiledRoutes = <%= JavascriptRenderer::Rails::RoutesCompiler.new.compile.to_json %>;
+
+  var routes = {
+    _routes:     compiledRoutes,
+    _visitor:    RoutesVisitor,
+    _fullDomain: <%= JavascriptRenderer.full_domain.inspect %>
+  }
+
+  for( var i in compiledRoutes ){
+    var route = compiledRoutes[i];
+
+    route.url     = urlHelper;
+    route.path    = pathFunctionBuilder(route);
+    route._router = routes;
+
+    routes[route.helper_name] = route;
+
+    (function(r){
+      var route = r;
+
+      <%= JavascriptRenderer.helper_namespace %>.helper(route.helper_name+'Path', function(){
+        return route.path.apply(route, arguments);
+      });
+
+      <%= JavascriptRenderer.helper_namespace %>.helper(route.helper_name+'Url', function(){
+        return route.url.apply(route, arguments);
+      });
+    })(route);
+
+  }
+
+  return routes;
+
+}();

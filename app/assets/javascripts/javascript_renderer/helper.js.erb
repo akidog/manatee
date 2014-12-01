@@ -1,0 +1,96 @@
+I18n.defaultLocale = <%= JavascriptRenderer.default_locale.to_s.inspect %>;
+I18n.locale        = <%= JavascriptRenderer.locale.to_s.inspect %>;
+
+var <%= JavascriptRenderer.helper_namespace %> = function(){
+
+  function helper(name, skipRegisterHook, fn){
+    if(typeof fn == 'undefined'){
+      fn = skipRegisterHook;
+      skipRegisterHook = false;
+    }
+
+    <%= JavascriptRenderer.helper_namespace %>[name] = fn;
+    if(skipRegisterHook == false){
+      <%= JavascriptRenderer.helper_namespace %>.registerHelper(name, fn);
+    }
+  }
+
+  function alias(name, skipRegisterHook, aliased_name){
+    if(typeof aliased_name == 'undefined'){
+      aliased_name     = skipRegisterHook;
+      skipRegisterHook = false;
+    }
+
+    <%= JavascriptRenderer.helper_namespace %>[name] = H[aliased_name];
+    if(skipRegisterHook == false){
+      <%= JavascriptRenderer.helper_namespace %>.registerHelper(name, H[aliased_name]);
+    }
+  }
+
+  function registerHelper(name, fn){
+    <% if defined? ::Handlebars %>
+    if( typeof Handlebars != 'undefined' ){
+      Handlebars.registerHelper(name, fn);
+    }
+    <% end %>
+  }
+
+  var domain = function(){
+    return <%= JavascriptRenderer.full_domain.inspect %>;
+  }
+
+  domain.app        = <%= JavascriptRenderer.full_domain.inspect       %>;
+  domain.asset      = <%= JavascriptRenderer.assets_domain.inspect     %>;
+  domain.font       = <%= JavascriptRenderer.fonts_domain.inspect      %>;
+  domain.audio      = <%= JavascriptRenderer.audios_domain.inspect     %>;
+  domain.video      = <%= JavascriptRenderer.videos_domain.inspect     %>;
+  domain.image      = <%= JavascriptRenderer.images_domain.inspect     %>;
+  domain.javascript = <%= JavascriptRenderer.javascript_domain.inspect %>;
+  domain.stylesheet = <%= JavascriptRenderer.stylesheet_domain.inspect %>;
+
+  var defaultPath = function(){
+    return <%= JavascriptRenderer.assets_path.inspect %>;
+  }
+
+  defaultPath.asset      = <%= JavascriptRenderer.assets_path.inspect     %>;
+  defaultPath.font       = <%= JavascriptRenderer.fonts_path.inspect      %>;
+  defaultPath.audio      = <%= JavascriptRenderer.audios_path.inspect     %>;
+  defaultPath.video      = <%= JavascriptRenderer.videos_path.inspect     %>;
+  defaultPath.image      = <%= JavascriptRenderer.images_path.inspect     %>;
+  defaultPath.javascript = <%= JavascriptRenderer.javascript_path.inspect %>;
+  defaultPath.stylesheet = <%= JavascriptRenderer.stylesheet_path.inspect %>;
+
+  var defaultFormat = {
+    javascript: 'js',
+    stylesheet: 'css'
+  }
+
+  return {
+    alias:            alias,
+    helper:           helper,
+    domain:           domain,
+    forceDomain:      <%= JavascriptRenderer.force_domain %>,
+    defaultPath:      defaultPath,
+    defaultFormat:    defaultFormat,
+    registerHelper:   registerHelper,
+    forceAssetDomain: <%= JavascriptRenderer.force_assets_domain || JavascriptRenderer.full_domain != JavascriptRenderer.assets_domain %>
+  };
+}();
+
+H._clone = function(obj) {
+    if (null == obj || "object" != typeof obj) return obj;
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    }
+    return copy;
+}
+
+// TODO: Remove it ASAP
+function helper(){
+  H.helper.apply(H, arguments);
+}
+
+function alias(name, fn){
+  H.alias.apply(H, arguments);
+}
