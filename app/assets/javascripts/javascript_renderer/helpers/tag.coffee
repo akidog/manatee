@@ -9,7 +9,11 @@ writeTagAttributes = (options) ->
       if value == true
         tag += " " + key + "=" + '"' + key + '"'
       else
-        tag += " " + key + "=" + '"' + options[key] + '"'
+        value = if typeof options[key] == 'string'
+          options[key].replace(/\'/g, '\\\'').replace(/\"/g, '\\"')
+        else
+          options[key]
+        tag += " " + key + "=" + '"' + value + '"'
   tag
 
 helper 'tag', (name, options = {}) ->
@@ -19,21 +23,29 @@ helper 'tag', (name, options = {}) ->
     tag += writeTagAttributes(options)
   tag + '/>'
 
-helper 'contentTag', (name, content_or_options = '', options_or_content = {}) ->
-  [content, options] = if typeof options_or_content == 'function'
-    [ options_or_content, H._clone(content_or_options) ]
+helper 'contentTag', (name, content_or_options = '', options_or_content = '') ->
+  [content, options] = if arguments.length == 1
+    ['', {}]
+  else if arguments.length == 2
+    if content_or_options != null && typeof content_or_options == 'object'
+      [ options_or_content || '', H._clone(content_or_options) ]
+    else
+      [ content_or_options || '', {} ]
   else
-    [ content_or_options, H._clone(options_or_content) ]
+    if content_or_options != null && typeof content_or_options == 'object'
+      [ options_or_content || '', H._clone(content_or_options) ]
+    else
+      [ content_or_options || '', H._clone(options_or_content) ]
 
   tag = "<" + name
-  if arguments.length > 2
-    tag += writeTagAttributes(options)
+  tag += writeTagAttributes(options)
   tag += '>'
-  if arguments.length > 1
-    if typeof content == 'function'
-      tag += content()
-    else
-      tag += content
+
+  if typeof content == 'function'
+    tag += content()
+  else
+    tag += content
+
   tag + '</' + name + '>'
 
 helper 'CDATA', (content) ->

@@ -35,6 +35,10 @@ module JavascriptRenderer
       assert_equal javascript_call(javascript_code), expected
     end
 
+    def assert_dom_javascript(expected, javascript_code)
+      assert_equal DomAssertion.parse(javascript_call(javascript_code)), DomAssertion.parse(expected)
+    end
+
     def javascript_call(javascript_code)
       template_handler.eval javascript_code
     end
