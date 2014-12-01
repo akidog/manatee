@@ -11,7 +11,7 @@ class TagTest < JavascriptRenderer::ViewTest
   end
 
   def test_simple_escapes_attribute
-    assert_dom_helper %(<escaped attribute="\\'escaped\\' \\"attribute\\""/>), :tag, 'escaped', attribute: %('escaped' "attribute")
+    assert_dom_helper %(<escaped attribute="'escaped' &#34;attribute&#34;"/>), :tag, 'escaped', attribute: %('escaped' "attribute")
   end
 
   def test_empty_content_tag
@@ -52,7 +52,7 @@ class TagTest < JavascriptRenderer::ViewTest
   end
 
   def test_content_escaped_attribute
-    assert_dom_helper %(<escaped attribute="\\'escaped\\' \\"attribute\\""></escaped>), :contentTag, 'escaped', attribute: %('escaped' "attribute")
+    assert_dom_helper %(<escaped attribute="'escaped' &#34;attribute&#34;"></escaped>), :contentTag, 'escaped', attribute: %('escaped' "attribute")
   end
 
   def test_composing_some_tags
