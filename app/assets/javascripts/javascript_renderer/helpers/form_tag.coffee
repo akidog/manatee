@@ -156,5 +156,3 @@ alias 'textareaTag', 'textAreaTag'
 
 helper 'UTF8EnforcerTag', () ->
   H.tag 'input', type: 'hidden', name: 'utf8', value: "&#x2713;"
-
-# utf8_enforcer_tag
