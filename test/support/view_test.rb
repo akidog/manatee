@@ -14,20 +14,23 @@ module JavascriptRenderer
       assert_equal DomAssertion.parse(expected), DomAssertion.parse( js_helper_call(helper_name, js_params) )
     end
 
-    def assert_helper(expected, helper_name, *attributes)
-      assert_equal helper_call(helper_name, *attributes), expected
+    def assert_helper(expected, helper_name, *attributes, &block)
+      assert_equal helper_call(helper_name, *attributes, &block), expected
     end
 
-    def assert_dom_helper(expected, helper_name, *attributes)
-      assert_equal DomAssertion.parse( helper_call(helper_name, *attributes) ), DomAssertion.parse(expected)
+    def assert_dom_helper(expected, helper_name, *attributes, &block)
+      assert_equal DomAssertion.parse( helper_call(helper_name, *attributes, &block) ), DomAssertion.parse(expected)
     end
 
     def js_helper_call(helper_name, js_params)
       javascript_call "#{JavascriptRenderer.helper_namespace}[#{helper_name.to_s.inspect}](#{js_params})"
     end
 
-    def helper_call(helper_name, *attributes)
+    def helper_call(helper_name, *attributes, &block)
       helper_function = "#{JavascriptRenderer.helper_namespace}[#{helper_name.to_s.inspect}]"
+      if block_given?
+        attributes << block
+      end
       template_handler.context.call helper_function, *attributes
     end
 

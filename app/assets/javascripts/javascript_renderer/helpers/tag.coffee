@@ -5,14 +5,18 @@ writeTagAttributes = (options) ->
       options['data-' + key] = value
     options['data'] = undefined
   for key, value of options
+    key = key.replace(/\_/g, '-')
     unless typeof value == 'undefined'
       if value == true
         tag += " " + key + "=" + '"' + key + '"'
       else
-        value = if typeof options[key] == 'string'
-          options[key].replace(/\'/g, '\\\'').replace(/\"/g, '\\"')
+        value = if typeof value == 'string'
+          value.replace(/\"/g, '&#34;').replace(/\'/g, '&#39;')
         else
-          options[key]
+          if value == null
+            value = ''
+          else
+            value.toString()
         tag += " " + key + "=" + '"' + value + '"'
   tag
 

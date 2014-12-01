@@ -3,11 +3,8 @@ javascriptCDATA = (content) ->
     content = content()
   "\n//#{H.CDATA( "\n" + content + "\n//" )}\n"
 
-helper 'javascriptTag', (content_or_options, options_or_content={}) ->
-  [content, options] = if typeof options_or_content == 'function'
-    [options_or_content, content_or_options]
-  else
-    [content_or_options, options_or_content]
+helper 'javascriptTag', (content_or_options, options_or_content = {}) ->
+  [content, options] = H._content_or_options content_or_options, options_or_content
   H.contentTag 'script', javascriptCDATA(content), options
 
 helper 'escapeJavascript', (content) ->
