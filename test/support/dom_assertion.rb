@@ -21,7 +21,12 @@ module JavascriptRenderer
     end
 
     def inspect
-      @node.to_s
+      content = if @node.is_a? Nokogiri::XML::Element
+        @node.children.map(&:to_s).join
+      else
+        @node.to_s
+      end
+      "DomAssertion: #{content}"
     end
 
     def ==(other)
@@ -38,9 +43,7 @@ module JavascriptRenderer
     end
 
     def self.parse(xml_code)
-      Nokogiri::XML(xml_code).children.map do |child|
-        DomAssertion.new child
-      end
+      DomAssertion.new Nokogiri::XML("<root_tag>#{xml_code}</root_tag>").children.first
     end
   end
 end
