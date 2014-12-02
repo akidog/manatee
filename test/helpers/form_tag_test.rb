@@ -130,7 +130,7 @@ class FormTagTest < JavascriptRenderer::ViewTest
     assert_dom_helper html_code, :fieldsetTag, 'You legend!'
   end
 
-  # TODO: Missing formTag helpers
+  # TODO: Missing formTag helpers tests
 
   def test_image_submit_tag
     html_code = %(<input alt="Save" type="image" src="/images/save.gif"/>)
