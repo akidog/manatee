@@ -8,5 +8,12 @@ htmlEscapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;' }
 escapeHTMLCallback = (key) ->
   htmlEscapeMap[key] || key;
 
+helper '_clone', (object) ->
+  return object if object == null || typeof object != "object"
+  cloned_object = object.constructor()
+  for attr of object
+    cloned_object[attr] = object[attr] if object.hasOwnProperty(attr)
+  cloned_object
+
 helper 'htmlEscape', (string) ->
   string.replace(/[&<>]/g, escapeHTMLCallback);
