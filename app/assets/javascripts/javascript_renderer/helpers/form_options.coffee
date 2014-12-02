@@ -2,14 +2,14 @@ optionsNullSelector = (value) ->
   false
 
 optionsStringSelectorBuilder = (_reference) ->
-  reference = H.htmlEscape _reference
+  reference = _reference
   (value) ->
     value && reference == value.toString()
 
 optionsArraySelectorBuilder = (_reference)->
   reference = []
   for index, ref_value of _reference
-    reference.push H.htmlEscape( ref_value.toString() )
+    reference.push ref_value.toString()
   (value) ->
     value && reference.indexOf(value.toString()) > -1
 
@@ -18,10 +18,9 @@ disabledAndSelector = (options, selected_selector, disabled_selector) ->
   options['disabled'] = true if disabled_selector(options['value'])
 
 stringOption = (value, selected_selector, disabled_selector) ->
-  content = H.htmlEscape value
-  options = { value: content }
+  options = { value: value }
   disabledAndSelector options, selected_selector, disabled_selector
-  H.contentTag 'option', content, options
+  H.contentTag 'option', H.htmlEscape(value), H.htmlEscapeAttributes(options)
 
 selectorForOptions = (reference) ->
   reference = reference.toString() if typeof reference == 'number' || reference == true || reference == false
@@ -33,28 +32,42 @@ selectorForOptions = (reference) ->
   [ selectorForOptions( reference['selected'] )[0], selectorForOptions( reference['disabled'] )[0] ]
 
 helper 'optionsForSelect', (container, selectors) ->
-  return container if typeof container == 'string'
+  return container.toString() if typeof container == 'string' || typeof value == 'number' || value == true || value == false
 
   [ selected_selector, disabled_selector ] = selectorForOptions selectors
+
+  unless container instanceof Array
+    array_container = []
+    for index, value of container
+      array_container.push [ index, value ]
+    container = array_container
 
   select_options = ''
   for index, value of container
     value = value.toString() if typeof value == 'number' || value == true || value == false
+    value = '' if value == null
+
     if typeof value == 'string'
       select_options += stringOption(value, selected_selector, disabled_selector)
     if value instanceof Array
-      if value.length == 3
-        [ content, value_option, options ] = value
-        options            = H._clone options
-        options['value'] ||= H.htmlEscape( (value_option || content).toString() )
-        disabledAndSelector options, selected_selector, disabled_selector
-        select_options += H.contentTag 'option', content, options
+      [ content, value_option, options ] = if value.length == 3
+        [ value[0], value[1], H._clone(value[2]) ]
       else if value.length == 2
-        # Check if last is a hash
-        html_options = H._clone options
-        select_options += H.contentTag 'option', value[0]
+        if typeof value[1] == 'object'
+          [ value[0], value[0], H._clone(value[1]) ]
+        else
+          [ value[0], value[1], {} ]
       else
-        select_options += stringOption(value, selected_selector, disabled_selector)
+        [ value[0], value[0], {} ]
+
+      content   = content.toString() if typeof content == 'number' || content == true || content == false
+      content ||= ''
+
+      value_option       = value_option.toString() if typeof value_option == 'number' || value_option == true || value_option == false
+      options['value'] ||= value_option || content
+
+      disabledAndSelector options, selected_selector, disabled_selector
+      select_options += H.contentTag 'option', H.htmlEscape(content), H.htmlEscapeAttributes(options)
 
   select_options
 

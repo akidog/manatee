@@ -17,3 +17,14 @@ helper '_clone', (object) ->
 
 helper 'htmlEscape', (string) ->
   string.replace(/[&<>]/g, escapeHTMLCallback);
+
+helper 'htmlEscapeAttributes', (attributes) ->
+  escaped_attributes = {}
+  for index, value of attributes
+    if typeof value == 'string'
+      escaped_attributes[index] = H.htmlEscape(value)
+    else if typeof value == 'object'
+      escaped_attributes[index] = H.htmlEscapeAttributes(value)
+    else
+      escaped_attributes[index] = value
+  escaped_attributes
