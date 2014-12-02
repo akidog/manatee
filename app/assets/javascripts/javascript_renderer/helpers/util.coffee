@@ -1,8 +1,8 @@
-helper '_contentOrOptions', (content_or_options = null, options_or_content = {}) ->
-  if options_or_content != null && typeof options_or_content == 'object'
-    [ content_or_options, H._clone(options_or_content) ]
+helper '_contentOrOptions', (content_or_options, options_or_content, default_content) ->
+  if content_or_options != null && typeof content_or_options == 'object'
+    [ options_or_content || default_content, H._clone(content_or_options) ]
   else
-    [ options_or_content, H._clone( content_or_options || {} ) ]
+    [ content_or_options || default_content, H._clone( options_or_content || {} ) ]
 
 htmlEscapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;' }
 escapeHTMLCallback = (key) ->

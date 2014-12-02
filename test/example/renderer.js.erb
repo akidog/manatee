@@ -1,3 +1,8 @@
-//= require javascript_renderer_railsless
+//= require      javascript_renderer_railsless
+//= require_tree ./views
+
+<% if JavascriptRenderer.protect_from_forgery %>
+H.csrfToken = <%= JavascriptRenderer::ViewTest::CSRF_TOKEN.inspect %>;
+<% end %>
 
 I18n.translations = <%= YAML.load_file( File.expand_path('../translations.en.yml', __FILE__) ).to_json %>;

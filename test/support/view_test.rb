@@ -1,6 +1,8 @@
 module JavascriptRenderer
   class ViewTest < Test::Unit::TestCase
 
+    CSRF_TOKEN = "gYGgKHmGVZdc56rk5atNpQed2Vntd16L+LVxcBsrEEU="
+
     protected
     def assert_template(expected, template_identifier, *params)
       assert_equal template_handler.eval_template(template_identifier, params), expected

@@ -4,12 +4,13 @@ class FormTagTest < JavascriptRenderer::ViewTest
 
   def setup
     reset_renderer do |config|
-      config.fonts_path      = '/fonts'
-      config.audios_path     = '/audios'
-      config.videos_path     = '/videos'
-      config.images_path     = '/images'
-      config.javascript_path = ''
-      config.stylesheet_path = ''
+      config.fonts_path           = '/fonts'
+      config.audios_path          = '/audios'
+      config.videos_path          = '/videos'
+      config.images_path          = '/images'
+      config.javascript_path      = ''
+      config.stylesheet_path      = ''
+      config.protect_from_forgery = true
     end
   end
 
@@ -130,7 +131,61 @@ class FormTagTest < JavascriptRenderer::ViewTest
     assert_dom_helper html_code, :fieldsetTag, 'You legend!'
   end
 
-  # TODO: Missing formTag helpers tests
+  def test_form_tag
+    assert_dom_helper whole_form, :formTag
+  end
+
+  def test_form_tag_multipart
+    expected = whole_form 'http://www.example.com', enctype: true
+    assert_dom_helper expected, :formTag, 'http://www.example.com', multipart: true
+  end
+
+  def test_form_tag_with_method_patch
+    expected = whole_form 'http://www.example.com', method: :patch
+    assert_dom_helper expected, :formTag, 'http://www.example.com', method: :patch
+  end
+
+  def test_form_tag_with_method_put
+    expected = whole_form'http://www.example.com', method: :put
+    assert_dom_helper expected, :formTag, 'http://www.example.com', method: :put
+  end
+
+  def test_form_tag_with_method_delete
+    expected = whole_form 'http://www.example.com', method: :delete
+    assert_dom_helper expected, :formTag, 'http://www.example.com', method: :delete
+  end
+
+  def test_form_tag_with_remote
+    expected = whole_form 'http://www.example.com', remote: true
+    assert_dom_helper expected, :formTag, 'http://www.example.com', remote: true
+  end
+
+  def test_form_tag_with_remote_false
+    expected = whole_form '/', remote: false
+    assert_dom_helper expected, :formTag, nil, remote: false
+  end
+
+  def test_form_tag_enforce_utf8_true
+    expected = whole_form 'http://www.example.com', enforce_utf8: true
+    assert_dom_helper expected, :formTag, 'http://www.example.com', enforce_utf8: true
+  end
+
+  def test_form_tag_enforce_utf8_false
+    expected = whole_form 'http://www.example.com', enforce_utf8: false
+    assert_dom_helper expected, :formTag, 'http://www.example.com', enforce_utf8: false
+  end
+
+  def test_form_tag_with_block
+    expected = whole_form{ 'Hello world!' }
+    assert_dom_helper(expected, :formTag){ 'Hello world!' }
+    assert_dom_js_helper expected, :formTag, %( function(){ return 'Hello world!';} )
+  end
+
+  def test_form_tag_with_block_and_method
+    expected = whole_form('http://www.example.com', method: :put){ 'Hello world!' }
+    assert_dom_helper(expected, :formTag, 'http://www.example.com', method: :put){ 'Hello world!' }
+    assert_dom_js_helper expected, :formTag, %( 'http://www.example.com', { method: 'put' }, function(){ return 'Hello world!';} )
+  end
 
   def test_image_submit_tag
     html_code = %(<input alt="Save" type="image" src="/images/save.gif"/>)
@@ -292,7 +347,41 @@ class FormTagTest < JavascriptRenderer::ViewTest
 
   def test_utf8_enforcer_tag
     expected = '<input name="utf8" type="hidden" value="&#x2713;" />'
-    assert_dom_helper expected, :UTF8EnforcerTag
+    assert_dom_helper expected, :utf8EnforcerTag
+  end
+
+  protected
+  def whole_form(action = '/', options = {})
+    output = form_text(action, options) + hidden_fields(options)
+    output << yield if block_given?
+    output << '</form>'
+  end
+
+  def form_text(action = '/', options = {})
+    remote, enctype, html_class, id, method = options.values_at(:remote, :enctype, :html_class, :id, :method)
+
+    txt =  %{<form accept-charset="UTF-8" action="#{action}"}
+
+    txt << %{ enctype="multipart/form-data"} if enctype
+    txt << %{ data-remote="true"}            if remote
+    txt << %{ class="#{html_class}"}         if html_class
+    txt << %{ id="#{id}"}                    if id
+
+    txt << %{ method="#{method.to_s == "get" ? "get" : "post"}">}
+  end
+
+  def hidden_fields(options = {})
+    method          = options[:method]
+    enforce_utf8    = options.fetch :enforce_utf8,       true
+    csrf_protection = options.fetch :authenticity_token, true
+
+    txt = %{<div style="display:none">}
+    txt << %{<input name="utf8" type="hidden" value="&#x2713;" />} if enforce_utf8
+    if method && !%w(get post).include?(method.to_s)
+      txt << %{<input name="_method" type="hidden" value="#{method}" />}
+    end
+    txt << %(<input type="hidden" name="authenticity_token" value="#{CSRF_TOKEN}"/>) if csrf_protection
+    txt << %{</div>}
   end
 
 end

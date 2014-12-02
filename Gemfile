@@ -15,4 +15,5 @@ end
 
 group :development, :test do
   gem 'pry'
+  gem 'eco'
 end

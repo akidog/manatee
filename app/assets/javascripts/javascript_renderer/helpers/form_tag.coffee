@@ -47,30 +47,65 @@ helper 'fieldSetTag', (legend = null, content_or_options = '', options_or_conten
     legend = null
     content_and_options
   else
-    H._contentOrOptions content_or_options, options_or_content
+    H._contentOrOptions content_or_options, options_or_content, ''
 
-  content   = content()                                if typeof content == 'function'
-  content   = H.contentTag('legend', legend) + content if legend && legend != ''
+  content = content()                                if typeof content == 'function'
+  content = H.contentTag('legend', legend) + content if legend && legend != ''
   H.contentTag 'fieldset', content, options
 
 alias  'fieldsetTag', 'fieldSetTag'
 
-# TODO: Handle CSRF Token & UTF-8 Enforcer
-helper 'formTag', (url = '#', options = {}, content = '') ->
-  form_options = {}
-  if typeof options == 'function' || typeof options == 'string'
-    content = options
+buildFormOptions = (url, options) ->
+  method                      = (options['method'] || 'post').toLowerCase()
+  options['action']           = url
+  options['method']           = if method == 'get' then 'get' else 'post'
+  options['accept-charset'] ||= 'UTF-8'
+
+  if options['multipart']
+    options['enctype']   = 'multipart/form-data'
+    options['multipart'] = undefined
+
+  options['data-remote'] = 'true' if options['remote']
+  options['remote'] = undefined
+
+  enforce_utf8 = options['enforce_utf8'] == undefined || options['enforce_utf8']
+  options['enforce_utf8'] = undefined
+
+  authenticity_token = if ( H.protectFromForgery && options['authenticity_token'] == undefined ) || options['authenticity_token']
+    if options['authenticity_token'] == undefined || options['authenticity_token'] == true then H.csrfToken else options['authenticity_token']
   else
-    form_options = H._clone options
-  form_options['action']   = url
-  form_options['method'] ||= 'post'
-  if form_options['multipart']
-    form_options['enctype']   = 'multipart/form-data'
-    form_options['multipart'] = undefined
-  if form_options['remote']
-    form_options['remote']      = undefined
-    form_options['data-remote'] = true
-  H.contentTag 'form', content, form_options
+    false
+  options['authenticity_token'] = undefined
+
+  [ method, enforce_utf8, authenticity_token ]
+
+buildFormContent = (content, method, enforce_utf8, authenticity_token) ->
+  form_content = ''
+
+  method_enforcer = method != 'get' && method != 'post'
+  form_content += '<div style="display:none">'
+  if enforce_utf8 || authenticity_token || method_enforcer
+    form_content += H.utf8EnforcerTag()                        if enforce_utf8
+    form_content += H.methodHiddenTag(method)                  if method_enforcer
+    form_content += H.authenticityTokenTag(authenticity_token) if authenticity_token
+  form_content += '</div>'
+
+  content = content() if typeof content == 'function'
+
+  form_content + content
+
+# TODO: Think about CSRF Token on server side race conditions
+helper 'formTag', (url = '/', content_or_options, options_or_content) ->
+  [content, options] = if typeof url == 'function'
+    content_and_options = [url, {}]
+    url = '/'
+    content_and_options
+  else
+    H._contentOrOptions content_or_options, options_or_content, ''
+
+  [ method, enforce_utf8, authenticity_token ] = buildFormOptions url, options
+
+  H.contentTag 'form', buildFormContent(content, method, enforce_utf8, authenticity_token), options
 
 helper 'imageSubmitTag', (source, options = {}) ->
   options           = H._clone options
@@ -154,5 +189,11 @@ helper 'textAreaTag', (name, content_or_options = '', options_or_content = {}) -
 
 alias 'textareaTag', 'textAreaTag'
 
-helper 'UTF8EnforcerTag', () ->
+helper 'authenticityTokenTag', (authenticity_token) ->
+  H.tag 'input', type: 'hidden', name: H.requestForgeryProtectionToken, value: authenticity_token
+
+helper 'methodHiddenTag', (method) ->
+  H.tag 'input', type: 'hidden', name: '_method', value: method
+
+helper 'utf8EnforcerTag', () ->
   H.tag 'input', type: 'hidden', name: 'utf8', value: "&#x2713;"
