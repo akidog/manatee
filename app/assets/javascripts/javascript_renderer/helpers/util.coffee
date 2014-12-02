@@ -1,4 +1,4 @@
-helper '_content_or_options', (content_or_options = null, options_or_content = {}) ->
+helper '_contentOrOptions', (content_or_options = null, options_or_content = {}) ->
   if options_or_content != null && typeof options_or_content == 'object'
     [ content_or_options, H._clone(options_or_content) ]
   else

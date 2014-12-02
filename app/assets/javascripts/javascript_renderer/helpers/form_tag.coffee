@@ -24,7 +24,7 @@ helper 'telephoneFieldTag',     fieldTagBuilder('tel')
 alias  'phoneFieldTag', 'telephoneFieldTag'
 
 helper 'buttonTag', (content_or_options = null, options_or_content = {}) ->
-  [content, options] = H._content_or_options content_or_options, options_or_content
+  [content, options] = H._contentOrOptions content_or_options, options_or_content
 
   content = content() if typeof content == 'function'
   options['name'] ||= 'button'
@@ -47,7 +47,7 @@ helper 'fieldSetTag', (legend = null, content_or_options = '', options_or_conten
     legend = null
     content_and_options
   else
-    H._content_or_options content_or_options, options_or_content
+    H._contentOrOptions content_or_options, options_or_content
 
   content   = content()                                if typeof content == 'function'
   content   = H.contentTag('legend', legend) + content if legend && legend != ''
@@ -85,7 +85,7 @@ helper 'labelTag', (name, content_or_options = null, options_or_content = {}) ->
     name = null
     content_and_options
   else
-    H._content_or_options content_or_options, options_or_content
+    H._contentOrOptions content_or_options, options_or_content
 
   content        ||= humanizeToLabel name
   options['for'] ||= sanitizeToId(name) if name
@@ -138,7 +138,7 @@ handleSizeAttribute = (options) ->
   options['size'] = undefined
 
 helper 'textAreaTag', (name, content_or_options = '', options_or_content = {}) ->
-  [content, options] = H._content_or_options content_or_options, options_or_content
+  [content, options] = H._contentOrOptions content_or_options, options_or_content
   handleSizeAttribute options
 
   content = content() if typeof content == 'function'
