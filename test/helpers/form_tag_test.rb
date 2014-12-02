@@ -45,10 +45,10 @@ class FormTagTest < JavascriptRenderer::ViewTest
     end
 
     define_method :"test_#{field}_with_options" do
-      html_code = %(<input type="#{type}" id="field_name" name="field_name" class="#{field}_class" data-attribute="this is a #{type} field" }/>)
+      html_code = %(<input type="#{type}" id="field_name" name="field_name" class="#{field}_class" data-attribute="this is a #{type} field"/>)
       assert_dom_helper html_code, :"#{field}FieldTag", 'field_name', nil, class: "#{field}_class", data: { attribute: "this is a #{type} field" }
 
-      html_code = %(<input type="#{type}" id="field_name" name="field_name" value="field_value" class="#{field}_class" data-attribute="this is a #{type} field" }/>)
+      html_code = %(<input type="#{type}" id="field_name" name="field_name" value="field_value" class="#{field}_class" data-attribute="this is a #{type} field"/>)
       assert_dom_helper html_code, :"#{field}FieldTag", 'field_name', 'field_value', class: "#{field}_class", data: { attribute: "this is a #{type} field" }
     end
   end
@@ -101,13 +101,13 @@ class FormTagTest < JavascriptRenderer::ViewTest
     html_code = %(<input type="checkbox" id="field_name" name="field[name]" value="1"/>)
     assert_dom_helper html_code, :checkBoxTag, 'field[name]'
 
-    html_code = %(<input type="checkbox" id="field_name" value="1" name="field_name" class="checkbox_class" data-attribute="this is a checkbox field" }/>)
+    html_code = %(<input type="checkbox" id="field_name" value="1" name="field_name" class="checkbox_class" data-attribute="this is a checkbox field"/>)
     assert_dom_helper html_code, :checkboxTag, 'field_name', nil, false, class: "checkbox_class", data: { attribute: "this is a checkbox field" }
 
-    html_code = %(<input type="checkbox" id="field_name" name="field_name" value="field_value" class="checkbox_class" data-attribute="this is a checkbox field" }/>)
+    html_code = %(<input type="checkbox" id="field_name" name="field_name" value="field_value" class="checkbox_class" data-attribute="this is a checkbox field"/>)
     assert_dom_helper html_code, :checkBoxTag, 'field_name', 'field_value', false, class: "checkbox_class", data: { attribute: "this is a checkbox field" }
 
-    html_code = %(<input type="checkbox" id="field_name" name="field_name" checked="checked" value="field_value" class="checkbox_class" data-attribute="this is a checkbox field" }/>)
+    html_code = %(<input type="checkbox" id="field_name" name="field_name" checked="checked" value="field_value" class="checkbox_class" data-attribute="this is a checkbox field"/>)
     assert_dom_helper html_code, :checkBoxTag, 'field_name', 'field_value', true, class: "checkbox_class", data: { attribute: "this is a checkbox field" }
   end
 
