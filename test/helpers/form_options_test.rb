@@ -94,11 +94,10 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :optionsForSelect, [ true, false ], selected: false, disabled: nil
   end
 
+  # TODO: I didn't found a nice way to support ranges on optionsForSelect helper
   # def test_range_options_for_select
-  #   assert_dom_equal(
-  #     "<option value=\"1\">1</option>\n<option value=\"2\">2</option>\n<option value=\"3\">3</option>",
-  #     options_for_select(1..3)
-  #   )
+  #   expected = '<option value="1">1</option><option value="2">2</option><option value="3">3</option>'
+  #   assert_dom_helper expected, :optionsForSelect, 1..3
   # end
 
   def test_array_options_for_string_include_in_other_string_bug_fix
@@ -126,18 +125,21 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :optionsForSelect, { '$' => 'Dollar', '<DKR>' => '<Kroner>' }, [ 'Dollar', '<Kroner>' ]
   end
 
+  # TODO: Think about "ducktyped" params on optionsForSelect helper
+  #       Code commented below is a snipped extracted from actionview source code,
+  #       it needs to be modified before any attempt of running it
   # def test_ducktyped_options_for_select
   #   quack = Struct.new(:first, :last)
   #   assert_dom_equal(
-  #     "<option value=\"&lt;Kroner&gt;\">&lt;DKR&gt;</option>\n<option value=\"Dollar\">$</option>",
+  #     "<option value=\"&lt;Kroner&gt;\">&lt;DKR&gt;</option><option value=\"Dollar\">$</option>",
   #     options_for_select([quack.new("<DKR>", "<Kroner>"), quack.new("$", "Dollar")])
   #   )
   #   assert_dom_equal(
-  #     "<option value=\"&lt;Kroner&gt;\">&lt;DKR&gt;</option>\n<option value=\"Dollar\" selected=\"selected\">$</option>",
+  #     "<option value=\"&lt;Kroner&gt;\">&lt;DKR&gt;</option><option value=\"Dollar\" selected=\"selected\">$</option>",
   #     options_for_select([quack.new("<DKR>", "<Kroner>"), quack.new("$", "Dollar")], "Dollar")
   #   )
   #   assert_dom_equal(
-  #     "<option value=\"&lt;Kroner&gt;\" selected=\"selected\">&lt;DKR&gt;</option>\n<option value=\"Dollar\" selected=\"selected\">$</option>",
+  #     "<option value=\"&lt;Kroner&gt;\" selected=\"selected\">&lt;DKR&gt;</option><option value=\"Dollar\" selected=\"selected\">$</option>",
   #     options_for_select([quack.new("<DKR>", "<Kroner>"), quack.new("$", "Dollar")], ["Dollar", "<Kroner>"])
   #   )
   # end
@@ -243,7 +245,8 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', selected: 1
   end
 
-  # TODO: It seems to be impossible to handle "integer floats" on Javascript
+  # TODO: It seems to be impossible to handle "integer floats" on Javascript on optionsFromCollectionForSelect
+  #       Those tests below fails because I could not make that 100% Rails-compatible
   # def test_collection_options_with_preselected_value_as_string_and_option_value_is_float
   #   albums   = [ Album.new(1.0, 'first', 'rap'), Album.new(2.0, 'second', 'pop') ]
   #   expected = %(<option value="1.0">rap</option><option value="2.0" selected="selected">pop</option>)
@@ -252,26 +255,20 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
   #
   # def test_collection_options_with_preselected_value_as_nil
   #   albums   = [ Album.new(1.0, 'first', 'rap'), Album.new(2.0, 'second', 'pop') ]
-  #   expected = %(<option value="1.0">rap</option>\n<option value="2.0">pop</option>)
+  #   expected = %(<option value="1.0">rap</option><option value="2.0">pop</option>)
   #   assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', selected: nil
   # end
   #
   # def test_collection_options_with_disabled_value_as_nil
-  #   albums = [ Album.new(1.0, "first","rap"), Album.new(2.0, "second","pop")]
-  #
-  #   assert_dom_equal(
-  #   %(<option value="1.0">rap</option>\n<option value="2.0">pop</option>),
-  #   options_from_collection_for_select(albums, "id", "genre", :disabled => nil)
-  #   )
+  #   albums = [ Album.new(1.0, 'first', 'rap'), Album.new(2.0, 'second', 'pop') ]
+  #   expected = %(<option value="1.0">rap</option><option value="2.0">pop</option>)
+  #   assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', disabled: nil
   # end
   #
   # def test_collection_options_with_disabled_value_as_array
-  #   albums = [ Album.new(1.0, "first","rap"), Album.new(2.0, "second","pop")]
-  #
-  #   assert_dom_equal(
-  #   %(<option disabled="disabled" value="1.0">rap</option>\n<option disabled="disabled" value="2.0">pop</option>),
-  #   options_from_collection_for_select(albums, "id", "genre", :disabled => ["1.0", 2.0])
-  #   )
+  #   albums = [ Album.new(1.0, 'first', 'rap'), Album.new(2.0, 'second', 'pop') ]
+  #   expected = %(<option value="1.0">rap</option><option value="2.0">pop</option>)
+  #   assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', disabled: ['1.0', 2.0]
   # end
   #
   # def test_collection_options_with_preselected_values_as_string_array_and_option_value_is_float
@@ -279,8 +276,6 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
   #   expected = %(<option value="1.0" selected="selected">rap</option><option value="2.0">pop</option><option value="3.0" selected="selected">country</option>)
   #   assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', ['1.0', '3.0']
   # end
-
-  # grouped_options_for_select
 
   def test_grouped_options_for_select_with_array
     options = [
