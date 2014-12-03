@@ -282,6 +282,63 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
   #   assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', ['1.0', '3.0']
   # end
 
+  # grouped_options_for_select
+
+  def test_grouped_options_for_select_with_array
+    options = [
+      [ 'North America',
+        [ [ 'United States', 'US' ], 'Canada' ]
+      ],
+      [ 'Europe',
+        [ [ 'Great Britain', 'GB' ], 'Germany' ]
+      ]
+    ]
+    expected = %(<optgroup label="North America"><option value="US">United States</option><option value="Canada">Canada</option></optgroup><optgroup label="Europe"><option value="GB">Great Britain</option><option value="Germany">Germany</option></optgroup>)
+    assert_dom_helper expected, :groupedOptionsForSelect, options
+  end
+
+  def test_grouped_options_for_select_with_array_and_html_attributes
+    options = [
+      [ 'North America',
+        [ [ 'United States', 'US'], 'Canada' ], data: { foo: 'bar' }
+      ],
+      [ 'Europe',
+        [ [ 'Great Britain', 'GB'], 'Germany' ], disabled: 'disabled'
+      ]
+    ]
+    expected = %(<optgroup label="North America" data-foo="bar"><option value="US">United States</option><option value="Canada">Canada</option></optgroup><optgroup label="Europe" disabled="disabled"><option value="GB">Great Britain</option><option value="Germany">Germany</option></optgroup>)
+    assert_dom_helper expected, :groupedOptionsForSelect, options
+  end
+
+  def test_grouped_options_for_select_with_optional_divider
+    expected = %(<optgroup label="----------"><option value="US">US</option><option value="Canada">Canada</option></optgroup><optgroup label="----------"><option value="GB">GB</option><option value="Germany">Germany</option></optgroup>)
+    assert_dom_helper expected, :groupedOptionsForSelect, [ [ 'US', 'Canada' ] , [ 'GB', 'Germany' ] ], nil, divider: '----------'
+  end
+
+  def test_grouped_options_for_select_with_selected_and_prompt
+    expected = %(<option value="">Choose a product...</option><optgroup label="Hats"><option value="Baseball Cap">Baseball Cap</option><option selected="selected" value="Cowboy Hat">Cowboy Hat</option></optgroup>)
+    assert_dom_helper expected, :groupedOptionsForSelect, [ ['Hats', [ 'Baseball Cap', 'Cowboy Hat' ] ] ], 'Cowboy Hat', prompt: 'Choose a product...'
+  end
+
+  def test_grouped_options_for_select_with_selected_and_prompt_true
+    expected = %(<option value="">Please select</option><optgroup label="Hats"><option value="Baseball Cap">Baseball Cap</option><option selected="selected" value="Cowboy Hat">Cowboy Hat</option></optgroup>)
+    assert_dom_helper expected, :groupedOptionsForSelect, [ ['Hats', [ 'Baseball Cap', 'Cowboy Hat' ] ] ], 'Cowboy Hat', prompt: true
+  end
+
+  def test_grouped_options_for_select_with_prompt_returns_html_escaped_string
+    expected = %(<option value="">&lt;Choose One&gt;</option><optgroup label="Hats"><option value="Baseball Cap">Baseball Cap</option><option value="Cowboy Hat">Cowboy Hat</option></optgroup>)
+    assert_dom_helper expected, :groupedOptionsForSelect, [ ['Hats', [ 'Baseball Cap', 'Cowboy Hat' ] ] ], nil, prompt: '<Choose One>'
+  end
+
+  def test_optgroups_with_with_options_with_hash
+    options = {
+      'North America' => [ 'United States', 'Canada'  ],
+      'Europe'        => [ 'Denmark',       'Germany' ]
+    }
+    expected = %(<optgroup label="North America"><option value="United States">United States</option><option value="Canada">Canada</option></optgroup><optgroup label="Europe"><option value="Denmark">Denmark</option><option value="Germany">Germany</option></optgroup>)
+    assert_dom_helper expected, :groupedOptionsForSelect, options
+  end
+
   protected
   def dummy_posts
     [

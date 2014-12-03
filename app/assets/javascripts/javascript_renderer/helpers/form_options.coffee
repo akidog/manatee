@@ -113,11 +113,44 @@ helper 'optionsFromCollectionForSelect', (collection, value_method, text_method,
 
   H.optionsForSelect container, selectors
 
+helper 'groupedOptionsForSelect', (grouped_options, selectors, options = {}) ->
+  [ selected_selector, disabled_selector ] = selectorForOptions selectors
+
+  options_for_select = ''
+  if options['prompt']
+    prompt = if typeof options['prompt'] == 'string' || options['prompt'] == 'number'
+      options['prompt'].toString()
+    else
+      H.translate 'helpers.select.prompt', default: 'Please select'
+    options_for_select += H.contentTag( 'option', H.htmlEscape(prompt), { value: '' } )
+
+  for index, options_in_group of grouped_options
+    [ options_in_group, optgroup_options ] = if options['divider']
+      if grouped_options instanceof Array
+        [ options_in_group, { label: options['divider'] } ]
+    else
+      if grouped_options instanceof Array
+        optgroup_options          = options_in_group[2] || {}
+        optgroup_options['label'] = options_in_group[0]
+        [ options_in_group[1], optgroup_options ]
+      else
+        [ options_in_group, { label: index } ]
+    # if grouped_options instanceof Array
+    #   optgroup_options          = options_in_group[2] || {}
+    #   optgroup_options['label'] = options_in_group[0]
+    #   options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group[1], selectors), optgroup_options )
+    # else
+    #   options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group, selectors), { label: index })
+
+    options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group, selectors), optgroup_options )
+
+  options_for_select
+
 # collection_check_boxes
 # collection_radio_buttons
 # collection_select
 # grouped_collection_select
-# grouped_options_for_select
+
 # option_groups_from_collection_for_select
 
 # select
