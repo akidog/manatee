@@ -8,21 +8,21 @@ helper 'distanceOfTimeInWords', (from_time, to_time, withSeconds = false) ->
      if withSeconds
        distance_in_seconds = Math.abs((to_time - from_time) / 1000)
        switch
-         when distance_in_seconds < 5  then ['less_than_x_seconds', { count: 5  }]
-         when distance_in_seconds < 10 then ['less_than_x_seconds', { count: 10 }]
-         when distance_in_seconds < 20 then ['less_than_x_seconds', { count: 20 }]
-         when distance_in_seconds < 40 then ['half_a_minute',       {}           ]
-         when distance_in_seconds < 60 then ['less_than_x_minutes', { count: 1  }]
+         when distance_in_seconds < 5  then [ 'less_than_x_seconds', { count: 5  } ]
+         when distance_in_seconds < 10 then [ 'less_than_x_seconds', { count: 10 } ]
+         when distance_in_seconds < 20 then [ 'less_than_x_seconds', { count: 20 } ]
+         when distance_in_seconds < 40 then [ 'half_a_minute',       {           } ]
+         when distance_in_seconds < 60 then [ 'less_than_x_minutes', { count: 1  } ]
          else ['x_minutes', { count: 1 }]
      else
        ['less_than_x_minutes', { count: 1 }]
-    when distance_in_minutes < 45     then ['x_minutes',      { count: Math.floor(distance_in_minutes)           }]
-    when distance_in_minutes < 90     then ['about_x_hours',  { count: 1                                         }]
-    when distance_in_minutes < 1440   then ['about_x_hours',  { count: Math.floor(distance_in_minutes / 60.0)    }]
-    when distance_in_minutes < 2520   then ['x_days',         { count: 1                                         }]
-    when distance_in_minutes < 43200  then ['x_days',         { count: Math.floor(distance_in_minutes / 1440.0)  }]
-    when distance_in_minutes < 86400  then ['about_x_months', { count: Math.floor(distance_in_minutes / 43200.0) }]
-    when distance_in_minutes < 525600 then ['x_months',       { count: Math.floor(distance_in_minutes / 43200.0) }]
+    when distance_in_minutes < 45     then [ 'x_minutes',      { count: Math.floor(distance_in_minutes)           } ]
+    when distance_in_minutes < 90     then [ 'about_x_hours',  { count: 1                                         } ]
+    when distance_in_minutes < 1440   then [ 'about_x_hours',  { count: Math.floor(distance_in_minutes / 60.0)    } ]
+    when distance_in_minutes < 2520   then [ 'x_days',         { count: 1                                         } ]
+    when distance_in_minutes < 43200  then [ 'x_days',         { count: Math.floor(distance_in_minutes / 1440.0)  } ]
+    when distance_in_minutes < 86400  then [ 'about_x_months', { count: Math.floor(distance_in_minutes / 43200.0) } ]
+    when distance_in_minutes < 525600 then [ 'x_months',       { count: Math.floor(distance_in_minutes / 43200.0) } ]
     else
       remainder         = distance_in_minutes % 525600
       distance_in_years = Math.floor( distance_in_minutes / 525600 )
