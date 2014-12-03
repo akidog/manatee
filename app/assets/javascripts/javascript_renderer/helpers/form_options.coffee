@@ -25,11 +25,33 @@ stringOption = (value, selected_selector, disabled_selector) ->
 selectorForOptions = (reference) ->
   reference = reference.toString() if typeof reference == 'number' || reference == true || reference == false
 
+  return [ reference,                               optionsNullSelector ] if typeof reference == 'function'
   return [ optionsNullSelector,                     optionsNullSelector ] if reference == null || reference == undefined
   return [ optionsStringSelectorBuilder(reference), optionsNullSelector ] if typeof reference == 'string'
   return [ optionsArraySelectorBuilder(reference),  optionsNullSelector ] if reference instanceof Array
 
   [ selectorForOptions( reference['selected'] )[0], selectorForOptions( reference['disabled'] )[0] ]
+
+collectionValueForSelector = (_selector, value_method) ->
+  selector = _selector
+  (value) ->
+    selector value[value_method]
+
+selectorForOptionsFromCollection = (reference, _value_method) ->
+  value_method = _value_method
+  reference    = reference.toString() if typeof reference == 'number' || reference == true || reference == false
+
+  return [ reference, optionsNullSelector           ] if typeof reference == 'function'
+  return [ optionsNullSelector, optionsNullSelector ] if reference == null || reference == undefined
+  return [ collectionValueForSelector(optionsStringSelectorBuilder(reference), value_method), optionsNullSelector ] if typeof reference == 'string'
+  return [ collectionValueForSelector(optionsArraySelectorBuilder(reference), value_method),  optionsNullSelector ] if reference instanceof Array
+
+  [ selectorForOptionsFromCollection( reference['selected'], _value_method )[0], selectorForOptionsFromCollection( reference['disabled'], _value_method )[0] ]
+
+
+
+
+
 
 helper 'optionsForSelect', (container, selectors) ->
   return container.toString() if typeof container == 'string' || typeof value == 'number' || value == true || value == false
@@ -71,13 +93,33 @@ helper 'optionsForSelect', (container, selectors) ->
 
   select_options
 
+helper 'optionsFromCollectionForSelect', (collection, value_method, text_method, selectors) ->
+  [ selected_selector, disabled_selector ] = selectorForOptionsFromCollection selectors, value_method
+  selectors = { selected: [], disabled: [] }
+
+  text_fetcher  = if typeof text_method  == 'function' then text_method  else ( (object) -> object[text_method]  )
+  value_fetcher = if typeof value_method == 'function' then value_method else ( (object) -> object[value_method] )
+
+  container = []
+  for index, object of collection
+    options = if object instanceof Array && object.length == 3
+      object[2]
+    else
+      {}
+    value = value_fetcher object
+    container.push [ text_fetcher(object), value, options ]
+    selectors['selected'].push(value) if selected_selector(object)
+    selectors['disabled'].push(value) if disabled_selector(object)
+
+  H.optionsForSelect container, selectors
+
 # collection_check_boxes
 # collection_radio_buttons
 # collection_select
 # grouped_collection_select
 # grouped_options_for_select
 # option_groups_from_collection_for_select
-# options_from_collection_for_select
+
 # select
 # time_zone_options_for_select
 # time_zone_select

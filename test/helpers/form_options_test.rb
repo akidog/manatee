@@ -2,6 +2,19 @@ require_relative '../test_helper'
 
 class FormOptionsTest < JavascriptRenderer::ViewTest
 
+  Post = Struct.new 'Post', :title, :author_name, :body, :secret, :written_on, :category, :origin, :allow_comments
+  class Post
+    def to_json(*args)
+      Hash[
+        self.class.members.map do |key|
+          [key, public_send(key)]
+        end
+      ].to_json
+    end
+  end
+
+  Album = Struct.new 'Album', :id, :title, :genre
+
   def setup
     reset_renderer do |config|
       config.fonts_path      = '/fonts'
@@ -159,6 +172,123 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
   def test_options_for_select_with_special_characters
     expected = '<option value="&lt;Denmark&gt;" onclick="alert(&quot;&lt;code&gt;&quot;)">&lt;Denmark&gt;</option>'
     assert_dom_helper expected, :optionsForSelect, [ [ '<Denmark>', { onclick: %(alert("<code>")) } ] ]
+  end
+
+  def test_collection_options
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe">Babe went home</option><option value="Cabe">Cabe went home</option>'
+    assert_dom_helper expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', 'title'
+  end
+
+  def test_collection_options_with_preselected_value
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe" selected="selected">Babe went home</option><option value="Cabe">Cabe went home</option>'
+    assert_dom_helper expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', 'title', 'Babe'
+  end
+
+  def test_collection_options_with_preselected_value_array
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe" selected="selected">Babe went home</option><option value="Cabe" selected="selected">Cabe went home</option>'
+    assert_dom_helper expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', 'title', [ 'Babe', 'Cabe' ]
+  end
+
+  def test_collection_options_with_proc_for_selected
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe" selected="selected">Babe went home</option><option value="Cabe">Cabe went home</option>'
+    assert_dom_helper    expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', 'title', lambda{ |jr, post| post.author_name == 'Babe' }
+    assert_dom_js_helper expected, :optionsFromCollectionForSelect, %( #{ dummy_posts.to_json }, 'author_name', 'title', function(post){ return post.author_name == 'Babe'; } )
+  end
+
+  def test_collection_options_with_disabled_value
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe" disabled="disabled">Babe went home</option><option value="Cabe">Cabe went home</option>'
+    assert_dom_helper expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', 'title', disabled: 'Babe'
+  end
+
+  def test_collection_options_with_disabled_array
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe" disabled="disabled">Babe went home</option><option value="Cabe" disabled="disabled">Cabe went home</option>'
+    assert_dom_helper expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', 'title', disabled: [ 'Babe', 'Cabe' ]
+  end
+
+  def test_collection_options_with_preselected_and_disabled_value
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe" disabled="disabled">Babe went home</option><option value="Cabe" selected="selected">Cabe went home</option>'
+    assert_dom_helper expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', 'title', selected: 'Cabe', disabled: 'Babe'
+  end
+
+  def test_collection_options_with_proc_for_disabled
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe" disabled="disabled">Babe went home</option><option value="Cabe" disabled="disabled">Cabe went home</option>'
+    assert_dom_helper    expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', 'title', disabled: lambda { |jr, post| %w(Babe Cabe).include? post.author_name }
+    assert_dom_js_helper expected, :optionsFromCollectionForSelect, %( #{ dummy_posts.to_json }, 'author_name', 'title', { disabled: function(post){ return ['Babe', 'Cabe'].indexOf(post.author_name) > -1; } } )
+  end
+
+  def test_collection_options_with_proc_for_value_method
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe">Babe went home</option><option value="Cabe">Cabe went home</option>'
+    assert_dom_helper    expected, :optionsFromCollectionForSelect, dummy_posts, lambda{ |jr, post| post.author_name }, 'title'
+    assert_dom_js_helper expected, :optionsFromCollectionForSelect, %( #{ dummy_posts.to_json }, function(post){ return post.author_name; }, 'title' )
+  end
+
+  def test_collection_options_with_proc_for_text_method
+    expected = '<option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe">Babe went home</option><option value="Cabe">Cabe went home</option>'
+    assert_dom_helper    expected, :optionsFromCollectionForSelect, dummy_posts, 'author_name', lambda { |jr, post| post.title }
+    assert_dom_js_helper expected, :optionsFromCollectionForSelect, %( #{ dummy_posts.to_json }, 'author_name', function(post){ return post.title; } )
+  end
+
+  def test_collection_options_with_element_attributes
+    expected = '<option value="USA" class="bold">USA</option>'
+    assert_dom_helper expected, :optionsFromCollectionForSelect, [ [ 'USA', 'USA', { class: 'bold' } ] ], 0, 1
+  end
+
+  def test_collection_options_with_preselected_value_as_string_and_option_value_is_integer
+    albums   = [ Album.new(1, 'first', 'rap'), Album.new(2, 'second', 'pop') ]
+    expected = %(<option selected="selected" value="1">rap</option><option value="2">pop</option>)
+    assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', selected: '1'
+  end
+
+  def test_collection_options_with_preselected_value_as_integer_and_option_value_is_string
+    albums   = [ Album.new('1', 'first', 'rap'), Album.new('2', 'second', 'pop') ]
+    expected = %(<option selected="selected" value="1">rap</option><option value="2">pop</option>)
+    assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', selected: 1
+  end
+
+  # TODO: It seems to be impossible to handle "integer floats" on Javascript
+  # def test_collection_options_with_preselected_value_as_string_and_option_value_is_float
+  #   albums   = [ Album.new(1.0, 'first', 'rap'), Album.new(2.0, 'second', 'pop') ]
+  #   expected = %(<option value="1.0">rap</option><option value="2.0" selected="selected">pop</option>)
+  #   assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', selected: '2.0'
+  # end
+  #
+  # def test_collection_options_with_preselected_value_as_nil
+  #   albums   = [ Album.new(1.0, 'first', 'rap'), Album.new(2.0, 'second', 'pop') ]
+  #   expected = %(<option value="1.0">rap</option>\n<option value="2.0">pop</option>)
+  #   assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', selected: nil
+  # end
+  #
+  # def test_collection_options_with_disabled_value_as_nil
+  #   albums = [ Album.new(1.0, "first","rap"), Album.new(2.0, "second","pop")]
+  #
+  #   assert_dom_equal(
+  #   %(<option value="1.0">rap</option>\n<option value="2.0">pop</option>),
+  #   options_from_collection_for_select(albums, "id", "genre", :disabled => nil)
+  #   )
+  # end
+  #
+  # def test_collection_options_with_disabled_value_as_array
+  #   albums = [ Album.new(1.0, "first","rap"), Album.new(2.0, "second","pop")]
+  #
+  #   assert_dom_equal(
+  #   %(<option disabled="disabled" value="1.0">rap</option>\n<option disabled="disabled" value="2.0">pop</option>),
+  #   options_from_collection_for_select(albums, "id", "genre", :disabled => ["1.0", 2.0])
+  #   )
+  # end
+  #
+  # def test_collection_options_with_preselected_values_as_string_array_and_option_value_is_float
+  #   albums   = [ Album.new(1.0, 'first', 'rap'), Album.new(2.0, 'second', 'pop'), Album.new(3.0, 'third', 'country') ]
+  #   expected = %(<option value="1.0" selected="selected">rap</option><option value="2.0">pop</option><option value="3.0" selected="selected">country</option>)
+  #   assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', ['1.0', '3.0']
+  # end
+
+  protected
+  def dummy_posts
+    [
+      Post.new('<Abe> went home', '<Abe>', 'To a little house', 'shh!'),
+      Post.new('Babe went home',  'Babe',  'To a little house', 'shh!'),
+      Post.new('Cabe went home',  'Cabe',  'To a little house', 'shh!')
+    ]
   end
 
 end
