@@ -135,12 +135,6 @@ helper 'groupedOptionsForSelect', (grouped_options, selectors, options = {}) ->
         [ options_in_group[1], optgroup_options ]
       else
         [ options_in_group, { label: index } ]
-    # if grouped_options instanceof Array
-    #   optgroup_options          = options_in_group[2] || {}
-    #   optgroup_options['label'] = options_in_group[0]
-    #   options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group[1], selectors), optgroup_options )
-    # else
-    #   options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group, selectors), { label: index })
 
     options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group, selectors), optgroup_options )
 
