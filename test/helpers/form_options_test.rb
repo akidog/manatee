@@ -2,18 +2,16 @@ require_relative '../test_helper'
 
 class FormOptionsTest < JavascriptRenderer::ViewTest
 
-  Post = Struct.new 'Post', :title, :author_name, :body, :secret, :written_on, :category, :origin, :allow_comments
-  class Post
-    def to_json(*args)
-      Hash[
-        self.class.members.map do |key|
-          [key, public_send(key)]
-        end
-      ].to_json
+  Post      = Struct.new 'Post',      :title, :author_name, :body, :secret, :written_on, :category, :origin, :allow_comments
+  Album     = Struct.new 'Album',     :id, :title, :genre
+  Country   = Struct.new 'Country',   :country_id, :country_name
+  Continent = Struct.new 'Continent', :continent_name, :countries
+
+  [ Post, Album, Country, Continent ].each do |klass|
+    klass.send :define_method, :to_json do |*args|
+      Hash[ self.class.members.map{ |key| [key, public_send(key)] } ].to_json
     end
   end
-
-  Album = Struct.new 'Album', :id, :title, :genre
 
   def setup
     reset_renderer do |config|
@@ -339,12 +337,24 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :groupedOptionsForSelect, options
   end
 
+  def test_option_groups_from_collection_for_select
+    expected = %(<optgroup label="&lt;Africa&gt;"><option value="&lt;sa&gt;">&lt;South Africa&gt;</option><option value="so">Somalia</option></optgroup><optgroup label="Europe"><option value="dk" selected="selected">Denmark</option><option value="ie">Ireland</option></optgroup>)
+    assert_dom_helper expected, :optionGroupsFromCollectionForSelect, dummy_continents, 'countries', 'continent_name', 'country_id', 'country_name', 'dk'
+  end
+
   protected
   def dummy_posts
     [
       Post.new('<Abe> went home', '<Abe>', 'To a little house', 'shh!'),
       Post.new('Babe went home',  'Babe',  'To a little house', 'shh!'),
       Post.new('Cabe went home',  'Cabe',  'To a little house', 'shh!')
+    ]
+  end
+
+  def dummy_continents
+    [
+      Continent.new('<Africa>', [ Country.new('<sa>', '<South Africa>'), Country.new('so', 'Somalia') ]),
+      Continent.new('Europe',   [ Country.new('dk', 'Denmark'),          Country.new('ie', 'Ireland') ])
     ]
   end
 

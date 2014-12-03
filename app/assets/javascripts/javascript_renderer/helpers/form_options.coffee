@@ -48,8 +48,13 @@ selectorForOptionsFromCollection = (reference, _value_method) ->
 
   [ selectorForOptionsFromCollection( reference['selected'], _value_method )[0], selectorForOptionsFromCollection( reference['disabled'], _value_method )[0] ]
 
-
-
+collectionFetcherBlock = (_accessor_method) ->
+  accessor_method = _accessor_method
+  if typeof accessor_method == 'function'
+    accessor_method
+  else
+    (object) ->
+      object[accessor_method]
 
 
 
@@ -97,8 +102,8 @@ helper 'optionsFromCollectionForSelect', (collection, value_method, text_method,
   [ selected_selector, disabled_selector ] = selectorForOptionsFromCollection selectors, value_method
   selectors = { selected: [], disabled: [] }
 
-  text_fetcher  = if typeof text_method  == 'function' then text_method  else ( (object) -> object[text_method]  )
-  value_fetcher = if typeof value_method == 'function' then value_method else ( (object) -> object[value_method] )
+  text_fetcher  = collectionFetcherBlock text_method
+  value_fetcher = collectionFetcherBlock value_method
 
   container = []
   for index, object of collection
@@ -140,12 +145,20 @@ helper 'groupedOptionsForSelect', (grouped_options, selectors, options = {}) ->
 
   options_for_select
 
+helper 'optionGroupsFromCollectionForSelect', (collection, group_method, group_label_method, option_key_method, option_value_method, selectors) ->
+  group_fetcher       = collectionFetcherBlock group_method
+  group_label_fetcher = collectionFetcherBlock group_label_method
+
+  options_for_select = ''
+  for index, object of collection
+    options_for_select += H.contentTag('optgroup', H.optionsFromCollectionForSelect(group_fetcher(object), option_key_method, option_value_method, selectors), { label: H.htmlEscape( group_label_fetcher object ) } )
+
+  options_for_select
+
 # collection_check_boxes
 # collection_radio_buttons
 # collection_select
 # grouped_collection_select
-
-# option_groups_from_collection_for_select
 
 # select
 # time_zone_options_for_select
