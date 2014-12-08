@@ -9,7 +9,17 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
 
   [ Post, Album, Country, Continent ].each do |klass|
     klass.send :define_method, :to_json do |*args|
-      Hash[ self.class.members.map{ |key| [key, public_send(key)] } ].to_json
+      hash = Hash[ self.class.members.map{ |key| [key, public_send(key)] } ]
+      hash['_class'] = self.class.name.match('::').post_match
+      hash.to_json
+    end
+
+    klass.send :define_method, :[] do |key|
+      begin
+        super key
+      rescue NameError
+        key == 'class' ? self.class.name.match('::').post_match : nil
+      end
     end
   end
 
@@ -94,7 +104,7 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :optionsForSelect, [ true, false ], selected: false, disabled: nil
   end
 
-  # TODO: I didn't found a nice way to support ranges on optionsForSelect helper
+  # # TODO: I didn't found a nice way to support ranges on optionsForSelect helper
   # def test_range_options_for_select
   #   expected = '<option value="1">1</option><option value="2">2</option><option value="3">3</option>'
   #   assert_dom_helper expected, :optionsForSelect, 1..3
@@ -125,9 +135,9 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :optionsForSelect, { '$' => 'Dollar', '<DKR>' => '<Kroner>' }, [ 'Dollar', '<Kroner>' ]
   end
 
-  # TODO: Think about "ducktyped" params on optionsForSelect helper
-  #       Code commented below is a snipped extracted from actionview source code,
-  #       it needs to be modified before any attempt of running it
+  # # TODO: Think about "ducktyped" params on optionsForSelect helper
+  # #       Code commented below is a snipped extracted from actionview source code,
+  # #       it needs to be modified before any attempt of running it
   # def test_ducktyped_options_for_select
   #   quack = Struct.new(:first, :last)
   #   assert_dom_equal(
@@ -245,8 +255,8 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :optionsFromCollectionForSelect, albums, 'id', 'genre', selected: 1
   end
 
-  # TODO: It seems to be impossible to handle "integer floats" on Javascript on optionsFromCollectionForSelect
-  #       Those tests below fails because I could not make that 100% Rails-compatible
+  # # TODO: It seems to be impossible to handle "integer floats" on Javascript on optionsFromCollectionForSelect
+  #         Those tests below fails because I could not make that 100% Rails-compatible
   # def test_collection_options_with_preselected_value_as_string_and_option_value_is_float
   #   albums   = [ Album.new(1.0, 'first', 'rap'), Album.new(2.0, 'second', 'pop') ]
   #   expected = %(<option value="1.0">rap</option><option value="2.0" selected="selected">pop</option>)
@@ -336,6 +346,288 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     expected = %(<optgroup label="&lt;Africa&gt;"><option value="&lt;sa&gt;">&lt;South Africa&gt;</option><option value="so">Somalia</option></optgroup><optgroup label="Europe"><option value="dk" selected="selected">Denmark</option><option value="ie">Ireland</option></optgroup>)
     assert_dom_helper expected, :optionGroupsFromCollectionForSelect, dummy_continents, 'countries', 'continent_name', 'country_id', 'country_name', 'dk'
   end
+
+  def test_select
+    post     = Post.new '<mus>'
+    expected = '<select id="post_title" name="post[title]"><option value="abe">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, ['post', 'title'], %w( abe <mus> hest)
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, ['post', 'title'], ['abe', '<mus>', 'hest'] )
+    assert_dom_helper    expected, :select, post, 'title' , %w( abe <mus> hest)
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'title', ['abe', '<mus>', 'hest'] )
+  end
+
+  def test_select_without_multiple
+    post     = Post.new '<mus>'
+    expected = '<select id="post_category" name="post[category]"></select>'
+    assert_dom_helper    expected, :select, post, :category, '', multiple: false
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', '', { multiple: false } )
+  end
+
+
+  def test_select_with_grouped_collection_as_nested_array
+    countries_by_continent = [
+      [ '<Africa>', [ [ '<South Africa>', '<sa>' ], [ 'Somalia', 'so' ] ] ],
+      [ 'Europe',   [ [ 'Denmark',        'dk'   ], [ 'Ireland', 'ie' ] ] ]
+    ]
+
+    post = Post.new
+    expected = [
+      %(<select id="post_origin" name="post[origin]"><optgroup label="&lt;Africa&gt;"><option value="&lt;sa&gt;">&lt;South Africa&gt;</option>),
+      %(<option value="so">Somalia</option></optgroup><optgroup label="Europe"><option value="dk">Denmark</option>),
+      %(<option value="ie">Ireland</option></optgroup></select>)
+    ].join
+    assert_dom_helper    expected, :select, post, :origin, countries_by_continent
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'origin', #{ countries_by_continent.to_json } )
+  end
+
+  def test_select_with_grouped_collection_as_hash
+    countries_by_continent = {
+      '<Africa>' => [ [ '<South Africa>', '<sa>' ], [ 'Somalia', 'so' ] ],
+      'Europe'   => [ [ 'Denmark',        'dk'   ], [ 'Ireland', 'ie' ] ]
+    }
+
+    post = Post.new
+    expected = [
+      %(<select id="post_origin" name="post[origin]"><optgroup label="&lt;Africa&gt;"><option value="&lt;sa&gt;">&lt;South Africa&gt;</option>),
+      %(<option value="so">Somalia</option></optgroup><optgroup label="Europe"><option value="dk">Denmark</option>),
+      %(<option value="ie">Ireland</option></optgroup></select>)
+    ].join
+    assert_dom_helper    expected, :select, post, :origin, countries_by_continent
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'origin', #{ countries_by_continent.to_json } )
+  end
+
+  def test_select_with_boolean_method
+    post = Post.new
+    post.allow_comments = false
+
+    expected = '<select id="post_allow_comments" name="post[allow_comments]"><option value="true">true</option><option value="false" selected="selected">false</option></select>'
+    assert_dom_helper    expected, :select, post, :allow_comments, [ true, false ]
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'allow_comments', [ true, false ] )
+  end
+
+  def test_select_with_multiple_to_add_hidden_input
+    post = Post.new
+    expected = '<input type="hidden" name="post[category][]" value=""/><select multiple="multiple" id="post_category" name="post[category][]"></select>'
+    assert_dom_helper    expected, :select, post, :category, '', multiple: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', '', { multiple: true } )
+  end
+
+  def test_select_with_multiple_and_without_hidden_input
+    post = Post.new
+    expected = '<select multiple="multiple" id="post_category" name="post[category][]"></select>'
+    assert_dom_helper    expected, :select, post, :category, '', include_hidden: false, multiple: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', '', { include_hidden: false, multiple: true } )
+  end
+
+  def test_select_with_multiple_and_with_explicit_name_ending_with_brackets
+    post = Post.new
+    expected = '<select multiple="multiple" id="post_category" name="post[category][]"></select>'
+    assert_dom_helper    expected, :select, post, :category, '', include_hidden: false, multiple: true, name: 'post[category][]'
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', '', { include_hidden: false, multiple: true, name: 'post[category][]' } )
+  end
+
+  def test_select_with_multiple_and_disabled_to_add_disabled_hidden_input
+    post = Post.new
+    expected = '<input disabled="disabled" type="hidden" name="post[category][]" value=""/><select multiple="multiple" disabled="disabled" id="post_category" name="post[category][]"></select>'
+    assert_dom_helper    expected, :select, post, :category, '', multiple: true, disabled: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', '', { multiple: true, disabled: true } )
+  end
+
+  def test_select_with_blank
+    post = Post.new
+    post.category = '<mus>'
+    expected = '<select id="post_category" name="post[category]"><option value=""></option><option value="abe">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], include_blank: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { include_blank: true } )
+  end
+
+  def test_select_with_blank_as_string
+    post = Post.new
+    post.category = '<mus>'
+    expected = '<select id="post_category" name="post[category]"><option value="">None</option><option value="abe">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], include_blank: 'None'
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { include_blank: 'None' } )
+  end
+
+  def test_select_with_blank_as_string_escaped
+    post = Post.new
+    post.category = '<mus>'
+    expected = '<select id="post_category" name="post[category]"><option value="">&lt;None&gt;</option><option value="abe">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], include_blank: '<None>'
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { include_blank: '<None>' } )
+  end
+
+  def test_select_with_default_prompt
+    post = Post.new
+    post.category = ''
+    expected = '<select id="post_category" name="post[category]"><option value="">Please select</option><option value="abe">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], prompt: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { prompt: true } )
+  end
+
+  def test_select_no_prompt_when_select_has_value
+    post = Post.new
+    post.category = '<mus>'
+    expected = '<select id="post_category" name="post[category]"><option value="abe">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], prompt: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { prompt: true } )
+  end
+
+  def test_select_with_given_prompt
+    post = Post.new
+    post.category = ''
+    expected = '<select id="post_category" name="post[category]"><option value="">The prompt</option><option value="abe">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], prompt: 'The prompt'
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { prompt: 'The prompt' } )
+  end
+
+  def test_select_with_given_prompt_escaped
+    post = Post.new
+    post.category = ''
+    expected = '<select id="post_category" name="post[category]"><option value="">&lt;The prompt&gt;</option><option value="abe">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], prompt: '<The prompt>'
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { prompt: '<The prompt>' } )
+  end
+
+  def test_select_with_prompt_and_blank
+    post = Post.new
+    post.category = ''
+    expected = '<select id="post_category" name="post[category]"><option value="">Please select</option><option value=""></option><option value="abe">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], prompt: true, include_blank: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { prompt: true, include_blank: true } )
+  end
+
+  def test_empty
+    post = Post.new
+    post.category = ''
+    expected = '<select id="post_category" name="post[category]"><option value="">Please select</option><option value=""></option></select>'
+    assert_dom_helper    expected, :select, post, :category, [], prompt: true, include_blank: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', [], { prompt: true, include_blank: true } )
+  end
+
+  def test_select_with_nil
+    post = Post.new
+    post.category = 'othervalue'
+    expected = '<select id="post_category" name="post[category]"><option value=""></option><option value="othervalue" selected="selected">othervalue</option></select>'
+    assert_dom_helper    expected, :select, post, :category, [ nil, 'othervalue' ]
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', [ null, 'othervalue' ] )
+  end
+
+  def test_required_select
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]" required="required"><option value="abe">abe</option><option value="mus">mus</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', 'mus', 'hest'], required: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', 'mus', 'hest'], { required: true } )
+  end
+
+  def test_required_select_with_include_blank_prompt
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]" required="required"><option value="">Select one</option><option value="abe">abe</option><option value="mus">mus</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', 'mus', 'hest'], include_blank: 'Select one', required: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', 'mus', 'hest'], { include_blank: 'Select one', required: true } )
+  end
+
+  def test_required_select_with_prompt
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]" required="required"><option value="">Select one</option><option value="abe">abe</option><option value="mus">mus</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', 'mus', 'hest'], prompt: 'Select one', required: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', 'mus', 'hest'], { prompt: 'Select one', required: true } )
+  end
+
+  def test_required_select_display_size_equals_to_one
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]" required="required" size="1"><option value="abe">abe</option><option value="mus">mus</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', 'mus', 'hest'], required: true, size: 1
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', 'mus', 'hest'], { required: true, size: 1 } )
+  end
+
+  def test_required_select_with_display_size_bigger_than_one
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]" required="required" size="2"><option value="abe">abe</option><option value="mus">mus</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', 'mus', 'hest'], required: true, size: 2
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', 'mus', 'hest'], { required: true, size: 2 } )
+  end
+
+  def test_required_select_with_multiple_option
+    post = Post.new
+    expected = '<input name="post[category][]" type="hidden" value=""/><select id="post_category" multiple="multiple" name="post[category][]" required="required"><option value="abe">abe</option><option value="mus">mus</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :select, post, :category, ['abe', 'mus', 'hest'], required: true, multiple: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', 'mus', 'hest'], { required: true, multiple: true } )
+  end
+
+  def test_select_with_fixnum
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]"><option value="">Please select</option><option value=""></option><option value="1">1</option></select>'
+    assert_dom_helper    expected, :select, post, :category, [1], prompt: true, include_blank: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', [1], { prompt: true, include_blank: true } )
+  end
+
+  def test_list_of_lists
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]"><option value="">Please select</option><option value=""></option><option value="1">1</option></select>'
+    assert_dom_helper    expected, :select, post, :category, [1], prompt: true, include_blank: true
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', [1], { prompt: true, include_blank: true } )
+  end
+
+  def test_select_not_escapes_string_content
+    post = Post.new
+    expected = '<select id="post_title" name="post[title]"><script>alert(1)</script></select>'
+    assert_dom_helper    expected, :select, post, 'title', '<script>alert(1)</script>'
+    assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'title', '<script>alert(1)</script>' )
+  end
+
+  # # TODO: Handle selected and disabled
+  # def test_select_with_selected_value
+  #   post = Post.new
+  #   expected = '<select id="post_category" name="post[category]"><option value="abe" selected="selected">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+  #   assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], selected: 'abe'
+  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { selected: 'abe' } )
+  # end
+  #
+  # def test_select_with_selected_nil
+  #   post = Post.new
+  #   post.category = '<mus>'
+  #   expected = '<select id="post_category" name="post[category]"><option value="abe">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+  #   assert_dom_helper    expected, :select, post, 'category', ['abe', '<mus>', 'hest'], selected: nil
+  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { selected: null } )
+  # end
+  #
+  # def test_select_with_disabled_value
+  #   post = Post.new
+  #   post.category = '<mus>'
+  #   expected = '<select id="post_category" name="post[category]"><option value="abe">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest" disabled="disabled">hest</option></select>'
+  #   assert_dom_helper    expected, :select, post, 'category', ['abe', '<mus>', 'hest'], disabled: 'hest'
+  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { disabled: 'hest' } )
+  # end
+  #
+  # def test_select_not_existing_method_with_selected_value
+  #   post = Post.new
+  #   expected = '<select id="post_locale" name="post[locale]"><option value="en">en</option><option value="ru" selected="selected">ru</option></select>'
+  #   assert_dom_helper    expected, :select, post, 'locale', ['en', 'ru'], selected: 'ru'
+  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'locale', ['en', 'ru'], { selected: 'ru' } )
+  # end
+  #
+  # def test_select_with_prompt_and_selected_value
+  #   post = Post.new
+  #   expected = '<select id="post_category" name="post[category]"><option value="one">one</option><option selected="selected" value="two">two</option></select>'
+  #   assert_dom_helper    expected, :select, post, 'category', ['one', 'two'], selected: 'two', prompt: true
+  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['one', 'two'], { selected: 'two', prompt: true } )
+  # end
+  #
+  # def test_select_with_disabled_array
+  #   post = Post.new
+  #   expected = '<select id="post_category" name="post[category]"><option value="abe" disabled="disabled">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest" disabled="disabled">hest</option></select>'
+  #   assert_dom_helper    expected, :select, post, 'category', ['abe', '<mus>', 'hest'], disabled: [ 'hest', 'abe' ]
+  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { disabled: [ 'hest', 'abe' ] } )
+  # end
+
+  # TODO: I didn't found a nice way to support ranges on select helper
+  # def test_select_with_range
+  #   post = Post.new
+  #   post.category = 0
+  #   expected = '<select id="post_category" name="post[category]"><option value="1">1</option>\n<option value="2">2</option>\n<option value="3">3</option></select>'
+  #   assert_dom_helper expected, :select, post, 'category', 1..3
+  # end
 
   protected
   def dummy_posts

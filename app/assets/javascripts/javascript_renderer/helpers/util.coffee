@@ -28,3 +28,14 @@ helper 'htmlEscapeAttributes', (attributes) ->
     else
       escaped_attributes[index] = value
   escaped_attributes
+
+helper 'underscore', (string) ->
+  results     = []
+  sub_strings = string.split '::'
+  for index, sub_string of sub_strings
+    replaced = sub_string.replace( /([A-Z0-9]+)/g, ( (str) -> '_' + str.toLowerCase() ) )
+    if (/([A-Z0-9])/).test(sub_string[0])
+      results.push replaced.slice(1)
+    else
+      results.push replaced
+  results.join '/'

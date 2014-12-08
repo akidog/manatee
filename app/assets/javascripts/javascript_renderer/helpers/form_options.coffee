@@ -4,7 +4,7 @@ optionsNullSelector = (value) ->
 optionsStringSelectorBuilder = (_reference) ->
   reference = _reference
   (value) ->
-    value && reference == value.toString()
+    value.toString() && reference == value.toString()
 
 optionsArraySelectorBuilder = (_reference)->
   reference = []
@@ -59,7 +59,8 @@ collectionFetcherBlock = (_accessor_method) ->
 
 
 helper 'optionsForSelect', (container, selectors) ->
-  return container.toString() if typeof container == 'string' || typeof value == 'number' || value == true || value == false
+  return container.toString()   if typeof container == 'string' || typeof value == 'number' || value == true || value == false
+  return container().toString() if typeof container == 'function'
 
   [ selected_selector, disabled_selector ] = selectorForOptions selectors
 
@@ -141,7 +142,7 @@ helper 'groupedOptionsForSelect', (grouped_options, selectors, options = {}) ->
       else
         [ options_in_group, { label: index } ]
 
-    options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group, selectors), optgroup_options )
+    options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group, selectors), H.htmlEscapeAttributes(optgroup_options) )
 
   options_for_select
 
@@ -155,11 +156,69 @@ helper 'optionGroupsFromCollectionForSelect', (collection, group_method, group_l
 
   options_for_select
 
+# EXPLAIN: When object is a Ruby object, two things can happen:
+#          1. If it don't responds to method [], class if infered by .class method
+#          2. If it responds to method [], class is infered by object['_class'] || object['_type'] || object['class'] || object['type'] in that order
+#
+# IMPORTANT: Removed 'index' and 'required' options, they seems too much cryptic to be used
+# TODO: Refactor that select helper, it's too big and confused!
+helper 'select', (object, method_or_prefix_and_method, choices_or_options, options_or_choices) ->
+  [ prefix, method ] = if typeof method_or_prefix_and_method == 'string'
+    class_name = object['_class'] || object['_type'] || object['class'] || object['type']
+    if class_name
+      class_name = class_name() if typeof class_name == 'function'
+      [ H.underscore(class_name), method_or_prefix_and_method ]
+    else
+      [ null, method_or_prefix_and_method ]
+  else
+    method_or_prefix_and_method
+
+  [ choices, options ] = if typeof options_or_choices == 'function'
+    [ options_or_choices, H._clone( choices_or_options || {} ) ]
+  else
+    [ choices_or_options, H._clone( options_or_choices || {} ) ]
+
+  name = if prefix then prefix + '[' + method + ']' else method
+
+  multiple_hidden_input = if options['multiple']
+    name = name + '[]' if name[-2..-1] != '[]'
+    if options['include_hidden'] == true || options['include_hidden'] == undefined
+      H.tag 'input', type: 'hidden', name: name, value: '', disabled: options['disabled']
+    else
+      ''
+  else
+    ''
+  options['include_hidden'] = undefined
+
+  reference = object[method]
+  reference = object[method].toString() if typeof reference == 'number' || reference == true || reference == false
+  selector = (value) ->
+    selected = ( value.toString() && reference == value.toString() )
+    # Welcome black magic!
+    options['prompt'] = undefined if selected
+    selected
+
+  if typeof choices == 'object'
+    unless choices instanceof Array
+      array_choices = []
+      for index, value of choices
+        array_choices.push [ index, value ]
+      choices = array_choices
+
+    if choices[1] instanceof Array
+      choices_options            = {}
+      choices_options['divider'] = options['divider'] unless options['divider'] == undefined
+      options['divider']         = undefined
+      return multiple_hidden_input + H.selectTag(name, H.groupedOptionsForSelect(choices, selector, choices_options), options)
+
+  multiple_hidden_input + H.selectTag(name, H.optionsForSelect(choices, selector), options)
+
+# TODO: Finish form_options helpers
 # collection_check_boxes
 # collection_radio_buttons
 # collection_select
 # grouped_collection_select
 
-# select
+# TODO: Think about implementing or not time zone helpers
 # time_zone_options_for_select
 # time_zone_select

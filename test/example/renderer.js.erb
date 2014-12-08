@@ -1,7 +1,7 @@
 //= require      javascript_renderer_railsless
 //= require_tree ./views
 
-<% if JavascriptRenderer.protect_from_forgery %>
+<% if JavascriptRenderer.protect_from_forgery && defined? JavascriptRenderer::ViewTest %>
 H.csrfToken = <%= JavascriptRenderer::ViewTest::CSRF_TOKEN.inspect %>;
 <% end %>
 

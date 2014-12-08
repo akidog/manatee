@@ -1,5 +1,7 @@
 sanitizeToId = (name) ->
-  name.toString().replace(/\]/g, '').replace /[^-a-zA-Z0-9:.]/g, '_'
+  name = name.toString()
+  name = name[0..-3] if name[-2..-1] == '[]'
+  name.replace(/\]/g, '').replace /[^-a-zA-Z0-9:.]/g, '_'
 
 humanizeToLabel = (name) ->
   sanitized = name.toString().replace(/\]/g, '').replace /[^-a-zA-Z0-9:.]/g, ' '
@@ -11,7 +13,7 @@ fieldTagBuilder = (_type) ->
     html_options            = H._clone options
     html_options['type']    = type
     html_options['name']    = name
-    html_options['id']    ||= sanitizeToId(name)
+    html_options['id']      = sanitizeToId(name) if html_options['id'] == undefined
     html_options['value'] ||= value if value
     H.tag 'input', html_options
 
@@ -37,7 +39,7 @@ helper 'checkBoxTag', (name, value = 1, checked = false, options = {}) ->
   html_options['name']    = name
   html_options['value']   = value
   html_options['checked'] = 'checked' if checked
-  html_options['id']    ||= sanitizeToId name
+  html_options['id']      = sanitizeToId(name) if html_options['id'] == undefined
   H.tag 'input', html_options
 alias  'checkboxTag', 'checkBoxTag'
 
@@ -139,11 +141,13 @@ helper 'selectTag', (name, option_tags = '', options = {}) ->
   options = H._clone options
 
   if options['include_blank']
-    option_tags = H.contentTag('option', '', value: '') + option_tags
+    blank_content = if options['include_blank'] == true then '' else H.htmlEscape( options['include_blank'] )
+    option_tags = H.contentTag('option', blank_content, value: '') + option_tags
   options['include_blank'] = undefined
 
   if options['prompt']
-    option_tags = H.contentTag('option', options['prompt'], value: '') + option_tags
+    prompt_content = if options['prompt'] == true then H.translate('helpers.select.prompt', default: 'Please select') else H.htmlEscape( options['prompt'] )
+    option_tags = H.contentTag('option', prompt_content, value: '') + option_tags
   options['prompt'] = undefined
 
   html_name = if options['multiple']
@@ -152,7 +156,9 @@ helper 'selectTag', (name, option_tags = '', options = {}) ->
   else
     name
 
-  options['id']   ||= sanitizeToId name
+  options['multiple'] = undefined if options['multiple'] == false
+
+  options['id']     = sanitizeToId(name) if options['id'] == undefined
   options['name'] ||= name
   H.contentTag 'select', option_tags, options
 
@@ -183,7 +189,7 @@ helper 'textAreaTag', (name, content_or_options = '', options_or_content = {}) -
     content = H.htmlEscape content
   options['escape'] = undefined
 
-  options['id']   ||= sanitizeToId name
+  options['id']     = sanitizeToId(name) if options['id'] == undefined
   options['name'] ||= name
   H.contentTag 'textarea', "\n"+content, options
 

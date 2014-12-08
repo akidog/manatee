@@ -280,8 +280,8 @@ class FormTagTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :selectTag, 'places', '<option>Home</option><option>Work</option><option>Pub</option>', prompt: 'string'
   end
 
-  def test_select_tag_not_escapes_prompt
-    expected = %(<select id="places" name="places"><option value=""><script>alert(1337)</script></option><option>Home</option><option>Work</option><option>Pub</option></select>)
+  def test_select_tag_escapes_prompt
+    expected = %(<select id="places" name="places"><option value="">&lt;script&gt;alert(1337)&lt;/script&gt;</option><option>Home</option><option>Work</option><option>Pub</option></select>)
     assert_dom_helper expected, :selectTag, 'places', '<option>Home</option><option>Work</option><option>Pub</option>', prompt: '<script>alert(1337)</script>'
   end
 
