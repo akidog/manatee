@@ -46,12 +46,12 @@ numberHelperBuilder = (_translation_key, _i18n_function) ->
       result
 
 
-helper 'numberToCurrency',  numberHelperBuilder( 'number.currency.format', I18n.toCurrency )
+helper 'numberToCurrency', numberHelperBuilder( 'number.currency.format', I18n.toCurrency )
 
 # TODO: Add number helper tests and fix I18n-js gem
-helper 'numberToHuman',     numberHelperBuilder( 'number.human.decimal_units', I18n.toNumber )
-helper 'numberToHumanSize', numberHelperBuilder( 'number.human.storage_units', I18n.toHumanSize )
-helper 'numberToPercentage', numberHelperBuilder( 'number.percentage.format', I18n.toPercentage )
+helper 'numberToHuman',      numberHelperBuilder( 'number.human.decimal_units', I18n.toNumber     )
+helper 'numberToHumanSize',  numberHelperBuilder( 'number.human.storage_units', I18n.toHumanSize  )
+helper 'numberToPercentage', numberHelperBuilder( 'number.percentage.format',   I18n.toPercentage )
 
 # number_to_phone
 # number_with_delimiter
