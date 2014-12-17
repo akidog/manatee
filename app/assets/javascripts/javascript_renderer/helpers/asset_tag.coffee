@@ -23,9 +23,9 @@ helper 'audioTag', (paths...) ->
       content += H.tag 'source', source_options
     H.contentTag 'audio', content, options
 
-helper 'autoDiscoveryLinkTag', (type = 'rss', url = H.domain(), options = {}) ->
+helper 'autoDiscoveryLinkTag', (type = 'rss', url = H.domain.app, options = {}) ->
   options = H._clone options
-  options['href']   = H.assetUrl(url || H.domain())
+  options['href']   = H.assetUrl(url || H.domain.app)
   options['rel']  ||= 'alternate'
   unless options['type']
     if type == 'rss'

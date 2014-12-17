@@ -11,30 +11,26 @@ var <%= JavascriptRenderer.helper_namespace %> = function(){
     <%= JavascriptRenderer.helper_namespace %>[name] = <%= JavascriptRenderer.helper_namespace %>[aliased_name];
   }
 
-  var domain = function(){
-    return <%= JavascriptRenderer.full_domain.inspect %>;
+  var domain = {
+    app:        <%= JavascriptRenderer.full_domain.inspect       %>,
+    asset:      <%= JavascriptRenderer.assets_domain.inspect     %>,
+    font:       <%= JavascriptRenderer.fonts_domain.inspect      %>,
+    audio:      <%= JavascriptRenderer.audios_domain.inspect     %>,
+    video:      <%= JavascriptRenderer.videos_domain.inspect     %>,
+    image:      <%= JavascriptRenderer.images_domain.inspect     %>,
+    javascript: <%= JavascriptRenderer.javascript_domain.inspect %>,
+    stylesheet: <%= JavascriptRenderer.stylesheet_domain.inspect %>
   }
 
-  domain.app        = <%= JavascriptRenderer.full_domain.inspect       %>;
-  domain.asset      = <%= JavascriptRenderer.assets_domain.inspect     %>;
-  domain.font       = <%= JavascriptRenderer.fonts_domain.inspect      %>;
-  domain.audio      = <%= JavascriptRenderer.audios_domain.inspect     %>;
-  domain.video      = <%= JavascriptRenderer.videos_domain.inspect     %>;
-  domain.image      = <%= JavascriptRenderer.images_domain.inspect     %>;
-  domain.javascript = <%= JavascriptRenderer.javascript_domain.inspect %>;
-  domain.stylesheet = <%= JavascriptRenderer.stylesheet_domain.inspect %>;
-
-  var defaultPath = function(){
-    return <%= JavascriptRenderer.assets_path.inspect %>;
+  var defaultPath = {
+    asset:      <%= JavascriptRenderer.assets_path.inspect     %>,
+    font:       <%= JavascriptRenderer.fonts_path.inspect      %>,
+    audio:      <%= JavascriptRenderer.audios_path.inspect     %>,
+    video:      <%= JavascriptRenderer.videos_path.inspect     %>,
+    image:      <%= JavascriptRenderer.images_path.inspect     %>,
+    javascript: <%= JavascriptRenderer.javascript_path.inspect %>,
+    stylesheet: <%= JavascriptRenderer.stylesheet_path.inspect %>
   }
-
-  defaultPath.asset      = <%= JavascriptRenderer.assets_path.inspect     %>;
-  defaultPath.font       = <%= JavascriptRenderer.fonts_path.inspect      %>;
-  defaultPath.audio      = <%= JavascriptRenderer.audios_path.inspect     %>;
-  defaultPath.video      = <%= JavascriptRenderer.videos_path.inspect     %>;
-  defaultPath.image      = <%= JavascriptRenderer.images_path.inspect     %>;
-  defaultPath.javascript = <%= JavascriptRenderer.javascript_path.inspect %>;
-  defaultPath.stylesheet = <%= JavascriptRenderer.stylesheet_path.inspect %>;
 
   var defaultFormat = {
     javascript: 'js',
