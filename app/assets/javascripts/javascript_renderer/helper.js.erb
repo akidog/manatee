@@ -3,36 +3,12 @@ I18n.locale        = <%= JavascriptRenderer.locale.to_s.inspect %>;
 
 var <%= JavascriptRenderer.helper_namespace %> = function(){
 
-  function helper(name, skipRegisterHook, fn){
-    if(typeof fn == 'undefined'){
-      fn = skipRegisterHook;
-      skipRegisterHook = false;
-    }
-
-    <%= JavascriptRenderer.helper_namespace %>[name] = fn;
-    if(skipRegisterHook == false){
-      <%= JavascriptRenderer.helper_namespace %>.registerHelper(name, fn);
-    }
+  function helper(name, fn){
+    <%= JavascriptRenderer.helper_namespace %>[name] = fn.bind(<%= JavascriptRenderer.helper_namespace %>);
   }
 
-  function alias(name, skipRegisterHook, aliased_name){
-    if(typeof aliased_name == 'undefined'){
-      aliased_name     = skipRegisterHook;
-      skipRegisterHook = false;
-    }
-
-    <%= JavascriptRenderer.helper_namespace %>[name] = H[aliased_name];
-    if(skipRegisterHook == false){
-      <%= JavascriptRenderer.helper_namespace %>.registerHelper(name, H[aliased_name]);
-    }
-  }
-
-  function registerHelper(name, fn){
-    <% if defined? ::Handlebars %>
-    if( typeof Handlebars != 'undefined' ){
-      Handlebars.registerHelper(name, fn);
-    }
-    <% end %>
+  function alias(name, aliased_name){
+    <%= JavascriptRenderer.helper_namespace %>[name] = <%= JavascriptRenderer.helper_namespace %>[aliased_name];
   }
 
   var domain = function(){
@@ -72,7 +48,6 @@ var <%= JavascriptRenderer.helper_namespace %> = function(){
     forceDomain:                   <%= JavascriptRenderer.force_domain %>,
     defaultPath:                   defaultPath,
     defaultFormat:                 defaultFormat,
-    registerHelper:                registerHelper,
     forceAssetDomain:              <%= JavascriptRenderer.force_assets_domain || JavascriptRenderer.full_domain != JavascriptRenderer.assets_domain %>,
     protectFromForgery:            <%= JavascriptRenderer.protect_from_forgery %>,
     requestForgeryProtectionToken: <%= JavascriptRenderer.request_forgery_protection_token.to_s.inspect %>
