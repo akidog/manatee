@@ -35,7 +35,6 @@ module JavascriptRenderer
   default_config :request_forgery_protection_token, :authenticity_token
   default_config :protect_from_forgery, true
 
-  default_config :helper_namespace,   'H'
   default_config :router_namespace,   'RR'
   default_config :renderer_namespace, 'Renderer'
   default_config :template_namespace, 'JST'
