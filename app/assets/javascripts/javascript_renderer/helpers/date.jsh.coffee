@@ -33,10 +33,10 @@ helper 'distanceOfTimeInWords', (from_time, to_time, withSeconds = false) ->
       else
         ['almost_x_years', { count: distance_in_years + 1 } ]
   location_key = 'datetime.distance_in_words.' + key
-  H.translate location_key, options
+  @translate location_key, options
 
 helper 'distanceOfTimeInWordsToNow', (from_time, withSeconds = false) ->
-  H.distanceOfTimeInWords from_time, new Date(), withSeconds
+  @distanceOfTimeInWords from_time, new Date(), withSeconds
 alias 'timeAgoInWords', 'distanceOfTimeInWordsToNow'
 
 # date_select
