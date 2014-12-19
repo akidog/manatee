@@ -3,10 +3,10 @@
 <head>
   <title>A Random Page</title>
   <meta charset="utf-8">
-  <%- H.csrfMetaTags() %>
+  <%- @csrfMetaTags() %>
 </head>
 <body>
-  <p>This page has this CSRF token: <%= H.csrfToken %></p>
+  <p>This page has this CSRF token: <%= @csrfToken %></p>
 </body>
 <script type="text/javascript"></script>
 </html>
