@@ -2,11 +2,11 @@
 helper 'computeAssetPath', (source, options = {}) ->
   options['type'] ||= 'asset'
 
-  if @forceAssetDomain
-    options['domain'] ||= @domain[ options['type'] ]
+  if @_context.forceAssetDomain
+    options['domain'] ||= @_context.domain[ options['type'] ]
 
   format = if options['format'] == undefined
-    @defaultFormat[ options['type'] ]
+    @_context.defaultFormat[ options['type'] ]
   else
     options['format']
 
@@ -38,7 +38,7 @@ helper 'computeAssetPath', (source, options = {}) ->
   source = if source[0] == '/'
     source
   else
-    prefix_path = @defaultPath[options['type']]
+    prefix_path = @_context.defaultPath[options['type']]
     if prefix_path[prefix_path.length-1] == '/'
       prefix_path + source
     else
@@ -65,9 +65,9 @@ helper 'assetUrl', (source, options = {}) ->
   options = @_clone options
 
   options['domain'] ||= if options['type']
-    @domain[options['type']] || @domain.asset
+    @_context.domain[options['type']] || @_context.domain.asset
   else
-    @domain.asset
+    @_context.domain.asset
 
   @assetPath source, options
 

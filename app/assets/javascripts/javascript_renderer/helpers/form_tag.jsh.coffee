@@ -73,7 +73,7 @@ buildFormOptions = (url, options) ->
   enforce_utf8 = options['enforce_utf8'] == undefined || options['enforce_utf8']
   options['enforce_utf8'] = undefined
 
-  authenticity_token = if ( @protectFromForgery && options['authenticity_token'] == undefined ) || options['authenticity_token']
+  authenticity_token = if ( @_context.protectFromForgery && options['authenticity_token'] == undefined ) || options['authenticity_token']
     if options['authenticity_token'] == undefined || options['authenticity_token'] == true then @csrfToken else options['authenticity_token']
   else
     false
@@ -196,7 +196,7 @@ helper 'textAreaTag', (name, content_or_options = '', options_or_content = {}) -
 alias 'textareaTag', 'textAreaTag'
 
 helper 'authenticityTokenTag', (authenticity_token) ->
-  @tag 'input', type: 'hidden', name: @requestForgeryProtectionToken, value: authenticity_token
+  @tag 'input', type: 'hidden', name: @_context.requestForgeryProtectionToken, value: authenticity_token
 
 helper 'methodHiddenTag', (method) ->
   @tag 'input', type: 'hidden', name: '_method', value: method

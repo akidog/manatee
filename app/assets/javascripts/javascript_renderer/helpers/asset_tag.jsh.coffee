@@ -23,9 +23,9 @@ helper 'audioTag', (paths...) ->
       content += @tag 'source', source_options
     @contentTag 'audio', content, options
 
-helper 'autoDiscoveryLinkTag', (type = 'rss', url = @domain.app, options = {}) ->
+helper 'autoDiscoveryLinkTag', (type = 'rss', url = @_context.domain.app, options = {}) ->
   options = @_clone options
-  options['href']   = @assetUrl(url || @domain.app)
+  options['href']   = @assetUrl(url || @_context.domain.app)
   options['rel']  ||= 'alternate'
   unless options['type']
     if type == 'rss'

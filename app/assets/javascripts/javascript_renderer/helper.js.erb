@@ -11,42 +11,10 @@ var <%= JavascriptRenderer.helper_namespace %> = function(){
     <%= JavascriptRenderer.helper_namespace %>[name] = <%= JavascriptRenderer.helper_namespace %>[aliased_name];
   }
 
-  var domain = {
-    app:        <%= JavascriptRenderer.full_domain.inspect       %>,
-    asset:      <%= JavascriptRenderer.assets_domain.inspect     %>,
-    font:       <%= JavascriptRenderer.fonts_domain.inspect      %>,
-    audio:      <%= JavascriptRenderer.audios_domain.inspect     %>,
-    video:      <%= JavascriptRenderer.videos_domain.inspect     %>,
-    image:      <%= JavascriptRenderer.images_domain.inspect     %>,
-    javascript: <%= JavascriptRenderer.javascript_domain.inspect %>,
-    stylesheet: <%= JavascriptRenderer.stylesheet_domain.inspect %>
-  }
-
-  var defaultPath = {
-    asset:      <%= JavascriptRenderer.assets_path.inspect     %>,
-    font:       <%= JavascriptRenderer.fonts_path.inspect      %>,
-    audio:      <%= JavascriptRenderer.audios_path.inspect     %>,
-    video:      <%= JavascriptRenderer.videos_path.inspect     %>,
-    image:      <%= JavascriptRenderer.images_path.inspect     %>,
-    javascript: <%= JavascriptRenderer.javascript_path.inspect %>,
-    stylesheet: <%= JavascriptRenderer.stylesheet_path.inspect %>
-  }
-
-  var defaultFormat = {
-    javascript: 'js',
-    stylesheet: 'css'
-  }
-
   return {
-    alias:                         alias,
-    helper:                        helper,
-    domain:                        domain,
-    forceDomain:                   <%= JavascriptRenderer.force_domain %>,
-    defaultPath:                   defaultPath,
-    defaultFormat:                 defaultFormat,
-    forceAssetDomain:              <%= JavascriptRenderer.force_assets_domain || JavascriptRenderer.full_domain != JavascriptRenderer.assets_domain %>,
-    protectFromForgery:            <%= JavascriptRenderer.protect_from_forgery %>,
-    requestForgeryProtectionToken: <%= JavascriptRenderer.request_forgery_protection_token.to_s.inspect %>
+    alias:    alias,
+    helper:   helper,
+    _context: <%= JavascriptRenderer.context.to_json %>
   };
 }();
 

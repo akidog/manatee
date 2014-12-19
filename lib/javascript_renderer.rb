@@ -35,8 +35,10 @@ module JavascriptRenderer
   default_config :request_forgery_protection_token, :authenticity_token
   default_config :protect_from_forgery, true
 
-  default_config :helper_namespace, 'H'
-  default_config :router_namespace, 'RR'
+  default_config :helper_namespace,   'H'
+  default_config :router_namespace,   'RR'
+  default_config :renderer_namespace, 'Renderer'
+  default_config :template_namespace, 'JST'
 
   default_config :views_asset, 'views'
   default_config :full_domain, 'http://localhost:3000'
@@ -46,6 +48,8 @@ module JavascriptRenderer
 
   default_config :force_domain,        false
   default_config :force_assets_domain, false
+
+  default_config :default_format, javascript: :js, stylesheet: :css
 
   default_config :assets_domain, 'http://localhost:3000'
 
@@ -75,6 +79,10 @@ module JavascriptRenderer
 
   def self.config(&block)
     yield JavascriptRenderer::Config.new
+  end
+
+  def self.context
+    JavascriptRenderer::Config.context
   end
 
 end
