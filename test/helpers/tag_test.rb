@@ -56,16 +56,16 @@ class TagTest < JavascriptRenderer::ViewTest
   end
 
   def test_composing_some_tags
-    javascript_code = <<-EOJ
-    H.contentTag('body', { class: 'body_class'}, function(){
-      return H.tag('br', { style: 'line-height: 10px' }) +
-             H.contentTag('h1', 'Headline', {class: 'main_headline'}) +
-             H.tag('hr') +
-             H.contentTag('p', 'Once upon a time...');
+    raw_template = <<-EOT
+    this.contentTag('body', { class: 'body_class'}, function(){
+      return this.tag('br', { style: 'line-height: 10px' }) +
+             this.contentTag('h1', 'Headline', {class: 'main_headline'}) +
+             this.tag('hr') +
+             this.contentTag('p', 'Once upon a time...');
     })
-    EOJ
+    EOT
     html_code  = %(<body class="body_class"><br style="line-height: 10px"/><h1 class="main_headline">Headline</h1><hr/><p>Once upon a time...</p></body>)
-    assert_dom_javascript html_code, javascript_code
+    assert_dom_template html_code, raw_template
   end
 
 end

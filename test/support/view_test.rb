@@ -25,11 +25,11 @@ module JavascriptRenderer
     end
 
     def js_helper_call(helper_name, js_params)
-      javascript_call "#{JavascriptRenderer.helper_namespace}[#{helper_name.to_s.inspect}](#{js_params})"
+      javascript_call "#{JavascriptRenderer.renderer_namespace}[#{helper_name.to_s.inspect}](#{js_params})"
     end
 
     def helper_call(helper_name, *attributes, &block)
-      helper_function = "#{JavascriptRenderer.helper_namespace}[#{helper_name.to_s.inspect}]"
+      helper_function = "#{JavascriptRenderer.renderer_namespace}[#{helper_name.to_s.inspect}]"
       if block_given?
         attributes << block
       end
@@ -44,6 +44,10 @@ module JavascriptRenderer
       assert_equal DomAssertion.parse(javascript_call(javascript_code)), DomAssertion.parse(expected)
     end
 
+    def assert_dom_template(expected, raw_template)
+      assert_equal DomAssertion.parse(eval_simulated_template(raw_template)), DomAssertion.parse(expected)
+    end
+
     def javascript_call(javascript_code)
       template_handler.eval javascript_code
     end
@@ -52,32 +56,35 @@ module JavascriptRenderer
       JavascriptRenderer::Handler.instance
     end
 
-    def reset_renderer(&block)
-      params = javascript_handler_params
-      JavascriptRenderer.config &block
-      changed_params = javascript_handler_params
-      unless params == changed_params
-        JavascriptRenderer.config do |config|
-          environment = ::Sprockets::Environment.new
-          environment.append_path File.expand_path('../../example',                   __FILE__)
-          environment.append_path File.expand_path('../../../app/assets/javascripts', __FILE__)
-          environment.append_path File.join(Gem.loaded_specs['i18n-js'].full_gem_path, 'app/assets/javascripts')
+    def config_renderer(&block)
+      return if self.class.config_js_already?
 
-          # Done this way to handle differences between sprockets 3.x and 2.x
-          JavascriptRenderer::Sprockets::JshProcessor.subscribe environment
-
-          config.assets = environment
-        end
-        template_handler.reset!
+      JavascriptRenderer.config do |config|
+        config.assets = self.class.sprockets_environment
+        yield config
       end
+
+      template_handler.reset!
     end
 
-    private
-    def javascript_handler_params
-      JavascriptRenderer.instance_variables.inject(Hash.new) do |hash, variable|
-        hash[variable] = JavascriptRenderer.instance_variable_get(variable) if variable != :@assets
-        hash
-      end
+    def eval_simulated_template(raw_template)
+      javascript_call "function(){ return (#{raw_template}); }.call(#{JavascriptRenderer.renderer_namespace})"
+    end
+
+    def self.sprockets_environment
+      environment = ::Sprockets::Environment.new
+      environment.append_path File.expand_path('../../example',                   __FILE__)
+      environment.append_path File.expand_path('../../../app/assets/javascripts', __FILE__)
+      environment.append_path File.join(Gem.loaded_specs['i18n-js'].full_gem_path, 'app/assets/javascripts')
+
+      # Done this way to handle differences between sprockets 3.x and 2.x
+      JavascriptRenderer::Sprockets::JshProcessor.subscribe environment
+
+      environment
+    end
+
+    def self.config_js_already?
+      @config_js_already || ( (@config_js_already = true) && false )
     end
 
   end

@@ -179,11 +179,11 @@ var <%= JavascriptRenderer.router_namespace %> = function(){
     (function(r){
       var route = r;
 
-      <%= JavascriptRenderer.helper_namespace %>.helper(route.helper_name+'Path', function(){
+      <%= JavascriptRenderer.renderer_namespace %>.helper(route.helper_name+'Path', function(){
         return route.path.apply(route, arguments);
       });
 
-      <%= JavascriptRenderer.helper_namespace %>.helper(route.helper_name+'Url', function(){
+      <%= JavascriptRenderer.renderer_namespace %>.helper(route.helper_name+'Url', function(){
         return route.url.apply(route, arguments);
       });
     })(route);

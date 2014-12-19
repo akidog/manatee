@@ -3,7 +3,7 @@ require_relative '../test_helper'
 class FormTagTest < JavascriptRenderer::ViewTest
 
   def setup
-    reset_renderer do |config|
+    config_renderer do |config|
       config.fonts_path           = '/fonts'
       config.audios_path          = '/audios'
       config.videos_path          = '/videos'
@@ -238,10 +238,10 @@ class FormTagTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :radioButtonTag, 'num_people', 5
 
     expected = %(<input id="gender_m" name="gender" type="radio" value="m" /><input id="gender_f" name="gender" type="radio" value="f" />)
-    assert_dom_javascript expected, %( H.radioButtonTag('gender', 'm') + H.radioButtonTag('gender', 'f') )
+    assert_dom_template expected, %( this.radioButtonTag('gender', 'm') + this.radioButtonTag('gender', 'f') )
 
     expected = %(<input id="opinion_-1" name="opinion" type="radio" value="-1" /><input id="opinion_1" name="opinion" type="radio" value="1" />)
-    assert_dom_javascript expected, %( H.radioButtonTag('opinion', '-1') + H.radioButtonTag('opinion', '1') )
+    assert_dom_template expected, %( this.radioButtonTag('opinion', '-1') + this.radioButtonTag('opinion', '1') )
 
     expected = %(<input id="person_gender_m" name="person[gender]" type="radio" value="m" />)
     assert_dom_helper expected, :radioButtonTag, 'person[gender]', 'm'

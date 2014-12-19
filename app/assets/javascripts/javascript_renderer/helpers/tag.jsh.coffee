@@ -46,7 +46,7 @@ helper 'contentTag', (name, content_or_options = '', options_or_content = '') ->
   tag += '>'
 
   if typeof content == 'function'
-    tag += content()
+    tag += content.call(this)
   else
     tag += content
 
@@ -54,5 +54,5 @@ helper 'contentTag', (name, content_or_options = '', options_or_content = '') ->
 
 helper 'CDATA', (content) ->
   if typeof content == 'function'
-    content = content()
+    content = content.call(this)
   "<![CDATA[" + content + "]]>"

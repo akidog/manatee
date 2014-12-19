@@ -28,7 +28,7 @@ alias  'phoneFieldTag', 'telephoneFieldTag'
 helper 'buttonTag', (content_or_options = null, options_or_content = {}) ->
   [content, options] = @_contentOrOptions content_or_options, options_or_content
 
-  content = content() if typeof content == 'function'
+  content = content.call(this) if typeof content == 'function'
   options['name'] ||= 'button'
   options['type'] ||= 'submit'
   @contentTag 'button', (content || 'Button'), options
@@ -51,7 +51,7 @@ helper 'fieldSetTag', (legend = null, content_or_options = '', options_or_conten
   else
     @_contentOrOptions content_or_options, options_or_content, ''
 
-  content = content()                                if typeof content == 'function'
+  content = content.call(this)                      if typeof content == 'function'
   content = @contentTag('legend', legend) + content if legend && legend != ''
   @contentTag 'fieldset', content, options
 
@@ -92,7 +92,7 @@ buildFormContent = (content, method, enforce_utf8, authenticity_token) ->
     form_content += @authenticityTokenTag(authenticity_token) if authenticity_token
   form_content += '</div>'
 
-  content = content() if typeof content == 'function'
+  content = content.call(this) if typeof content == 'function'
 
   form_content + content
 
@@ -182,7 +182,7 @@ helper 'textAreaTag', (name, content_or_options = '', options_or_content = {}) -
   [content, options] = @_contentOrOptions content_or_options, options_or_content
   handleSizeAttribute options
 
-  content = content() if typeof content == 'function'
+  content = content.call(this) if typeof content == 'function'
   content ||= ''
 
   if typeof options['escape'] == 'undefined' || options['escape']

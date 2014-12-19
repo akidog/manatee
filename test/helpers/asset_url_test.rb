@@ -3,7 +3,7 @@ require_relative '../test_helper'
 class AssetUrlTest < JavascriptRenderer::ViewTest
 
   def setup
-    reset_renderer do |config|
+    config_renderer do |config|
       config.fonts_path      = '/fonts'
       config.audios_path     = '/audios'
       config.videos_path     = '/videos'

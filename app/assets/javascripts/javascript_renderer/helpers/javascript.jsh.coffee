@@ -1,6 +1,6 @@
 javascriptCDATA = (content) ->
   if typeof content == 'function'
-    content = content()
+    content = content.call(this)
   "\n//#{@CDATA( "\n" + content + "\n//" )}\n"
 
 helper 'javascriptTag', (content_or_options, options_or_content = {}) ->

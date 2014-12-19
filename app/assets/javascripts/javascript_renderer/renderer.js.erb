@@ -1,0 +1,56 @@
+I18n.defaultLocale = <%= JavascriptRenderer.default_locale.to_s.inspect %>;
+I18n.locale        = <%= JavascriptRenderer.locale.to_s.inspect %>;
+
+var <%= JavascriptRenderer.template_namespace %> = <%= JavascriptRenderer.template_namespace %> || {};
+var <%= JavascriptRenderer.renderer_namespace %> = {};
+
+// var Renderer = {};
+
+(function(){
+  function _pushStack(view_name, params){
+    var old_params = {};
+    for(key in params){
+      old_params[key] = this[key];
+      this[key]       = params[key];
+    }
+    this._rendering_stack.push( [view_name, old_params] );
+  }
+
+  function _popStack(){
+    var stack = this._rendering_stack.pop();
+    for(key in stack[1]){
+      this[key] = stack[1][key];
+    }
+  }
+
+  function render(view_name, params){
+    params = params || {};
+    _pushStack.call(this, view_name, params);
+    var result = this._templates[view_name].call(this, this);
+    _popStack.call(this);
+    return result;
+  }
+
+  function helper(name, block){
+    this[name] = block.bind(this);
+  }
+
+  function alias(name, aliased_name){
+    this[name] = this[aliased_name];
+  }
+
+  function cleanStack(){
+    this._rendering_stack = [];
+  }
+
+  this.alias            = alias.bind(this);
+  this.helper           = helper.bind(this);
+  this._templates       = <%= JavascriptRenderer.template_namespace %>;
+  this._context         = <%= JavascriptRenderer.context.to_json %>;
+  this._rendering_stack = [];
+
+  this.helper('render',     render);
+  this.helper('cleanStack', cleanStack);
+
+}).call(<%= JavascriptRenderer.renderer_namespace %>);
+// }).call(Renderer);
