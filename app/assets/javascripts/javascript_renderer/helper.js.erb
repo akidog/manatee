@@ -50,11 +50,4 @@ var <%= JavascriptRenderer.helper_namespace %> = function(){
   };
 }();
 
-// TODO: Remove JSH helper and alias functions ASAP
-function helper(){
-  H.helper.apply(H, arguments);
-}
-
-function alias(name, fn){
-  H.alias.apply(H, arguments);
-}
+var Renderer = <%= JavascriptRenderer.helper_namespace %>;

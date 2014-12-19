@@ -10,6 +10,7 @@ require 'javascript_renderer/version'
 
 require 'javascript_renderer/config'
 require 'javascript_renderer/handler'
+require 'javascript_renderer/sprockets'
 
 if defined? Rails
   require 'javascript_renderer/rails'

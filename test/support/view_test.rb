@@ -58,10 +58,14 @@ module JavascriptRenderer
       changed_params = javascript_handler_params
       unless params == changed_params
         JavascriptRenderer.config do |config|
-          environment = Sprockets::Environment.new
+          environment = ::Sprockets::Environment.new
           environment.append_path File.expand_path('../../example',                   __FILE__)
           environment.append_path File.expand_path('../../../app/assets/javascripts', __FILE__)
           environment.append_path File.join(Gem.loaded_specs['i18n-js'].full_gem_path, 'app/assets/javascripts')
+
+          # Done this way to handle differences between sprockets 3.x and 2.x
+          JavascriptRenderer::Sprockets::JshProcessor.subscribe environment
+
           config.assets = environment
         end
         template_handler.reset!
