@@ -1,8 +1,8 @@
 helper '_contentOrOptions', (content_or_options, options_or_content, default_content) ->
   if content_or_options != null && typeof content_or_options == 'object'
-    [ options_or_content || default_content, H._clone(content_or_options) ]
+    [ options_or_content || default_content, @_clone(content_or_options) ]
   else
-    [ content_or_options || default_content, H._clone( options_or_content || {} ) ]
+    [ content_or_options || default_content, @_clone( options_or_content || {} ) ]
 
 htmlEscapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;' }
 escapeHTMLCallback = (key) ->
@@ -22,9 +22,9 @@ helper 'htmlEscapeAttributes', (attributes) ->
   escaped_attributes = {}
   for index, value of attributes
     if typeof value == 'string'
-      escaped_attributes[index] = H.htmlEscape(value)
+      escaped_attributes[index] = @htmlEscape(value)
     else if typeof value == 'object'
-      escaped_attributes[index] = H.htmlEscapeAttributes(value)
+      escaped_attributes[index] = @htmlEscapeAttributes(value)
     else
       escaped_attributes[index] = value
   escaped_attributes

@@ -21,7 +21,7 @@ writeTagAttributes = (options) ->
   tag
 
 helper 'tag', (name, options = {}) ->
-  options = H._clone options
+  options = @_clone options
   tag = "<" + name
   if arguments.length > 1
     tag += writeTagAttributes(options)
@@ -32,14 +32,14 @@ helper 'contentTag', (name, content_or_options = '', options_or_content = '') ->
     ['', {}]
   else if arguments.length == 2
     if content_or_options != null && typeof content_or_options == 'object'
-      [ options_or_content || '', H._clone(content_or_options) ]
+      [ options_or_content || '', @_clone(content_or_options) ]
     else
       [ content_or_options || '', {} ]
   else
     if content_or_options != null && typeof content_or_options == 'object'
-      [ options_or_content || '', H._clone(content_or_options) ]
+      [ options_or_content || '', @_clone(content_or_options) ]
     else
-      [ content_or_options || '', H._clone(options_or_content) ]
+      [ content_or_options || '', @_clone(options_or_content) ]
 
   tag = "<" + name
   tag += writeTagAttributes(options)
