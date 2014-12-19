@@ -20,7 +20,7 @@ disabledAndSelector = (options, selected_selector, disabled_selector) ->
 stringOption = (value, selected_selector, disabled_selector) ->
   options = { value: value }
   disabledAndSelector options, selected_selector, disabled_selector
-  H.contentTag 'option', H.htmlEscape(value), H.htmlEscapeAttributes(options)
+  @contentTag 'option', @htmlEscape(value), @htmlEscapeAttributes(options)
 
 selectorForOptions = (reference) ->
   reference = reference.toString() if typeof reference == 'number' || reference == true || reference == false
@@ -76,13 +76,13 @@ helper 'optionsForSelect', (container, selectors) ->
     value = '' if value == null
 
     if typeof value == 'string'
-      select_options += stringOption(value, selected_selector, disabled_selector)
+      select_options += stringOption.call(this, value, selected_selector, disabled_selector)
     if value instanceof Array
       [ content, value_option, options ] = if value.length == 3
-        [ value[0], value[1], H._clone(value[2]) ]
+        [ value[0], value[1], @_clone(value[2]) ]
       else if value.length == 2
         if typeof value[1] == 'object'
-          [ value[0], value[0], H._clone(value[1]) ]
+          [ value[0], value[0], @_clone(value[1]) ]
         else
           [ value[0], value[1], {} ]
       else
@@ -95,7 +95,7 @@ helper 'optionsForSelect', (container, selectors) ->
       options['value'] ||= value_option || content
 
       disabledAndSelector options, selected_selector, disabled_selector
-      select_options += H.contentTag 'option', H.htmlEscape(content), H.htmlEscapeAttributes(options)
+      select_options += @contentTag 'option', @htmlEscape(content), @htmlEscapeAttributes(options)
 
   select_options
 
@@ -117,7 +117,7 @@ helper 'optionsFromCollectionForSelect', (collection, value_method, text_method,
     selectors['selected'].push(value) if selected_selector(object)
     selectors['disabled'].push(value) if disabled_selector(object)
 
-  H.optionsForSelect container, selectors
+  @optionsForSelect container, selectors
 
 helper 'groupedOptionsForSelect', (grouped_options, selectors, options = {}) ->
   [ selected_selector, disabled_selector ] = selectorForOptions selectors
@@ -127,8 +127,8 @@ helper 'groupedOptionsForSelect', (grouped_options, selectors, options = {}) ->
     prompt = if typeof options['prompt'] == 'string' || options['prompt'] == 'number'
       options['prompt'].toString()
     else
-      H.translate 'helpers.select.prompt', default: 'Please select'
-    options_for_select += H.contentTag( 'option', H.htmlEscape(prompt), { value: '' } )
+      @translate 'helpers.select.prompt', default: 'Please select'
+    options_for_select += @contentTag( 'option', @htmlEscape(prompt), { value: '' } )
 
   for index, options_in_group of grouped_options
     [ options_in_group, optgroup_options ] = if options['divider']
@@ -142,7 +142,7 @@ helper 'groupedOptionsForSelect', (grouped_options, selectors, options = {}) ->
       else
         [ options_in_group, { label: index } ]
 
-    options_for_select += H.contentTag('optgroup', H.optionsForSelect(options_in_group, selectors), H.htmlEscapeAttributes(optgroup_options) )
+    options_for_select += @contentTag('optgroup', @optionsForSelect(options_in_group, selectors), @htmlEscapeAttributes(optgroup_options) )
 
   options_for_select
 
@@ -152,7 +152,7 @@ helper 'optionGroupsFromCollectionForSelect', (collection, group_method, group_l
 
   options_for_select = ''
   for index, object of collection
-    options_for_select += H.contentTag('optgroup', H.optionsFromCollectionForSelect(group_fetcher(object), option_key_method, option_value_method, selectors), { label: H.htmlEscape( group_label_fetcher object ) } )
+    options_for_select += @contentTag('optgroup', @optionsFromCollectionForSelect(group_fetcher(object), option_key_method, option_value_method, selectors), { label: @htmlEscape( group_label_fetcher object ) } )
 
   options_for_select
 
@@ -167,23 +167,23 @@ helper 'select', (object, method_or_prefix_and_method, choices_or_options, optio
     class_name = object['_class'] || object['_type'] || object['class'] || object['type']
     if class_name
       class_name = class_name() if typeof class_name == 'function'
-      [ H.underscore(class_name), method_or_prefix_and_method ]
+      [ @underscore(class_name), method_or_prefix_and_method ]
     else
       [ null, method_or_prefix_and_method ]
   else
     method_or_prefix_and_method
 
   [ choices, options ] = if typeof options_or_choices == 'function'
-    [ options_or_choices, H._clone( choices_or_options || {} ) ]
+    [ options_or_choices, @_clone( choices_or_options || {} ) ]
   else
-    [ choices_or_options, H._clone( options_or_choices || {} ) ]
+    [ choices_or_options, @_clone( options_or_choices || {} ) ]
 
   name = if prefix then prefix + '[' + method + ']' else method
 
   multiple_hidden_input = if options['multiple']
     name = name + '[]' if name[-2..-1] != '[]'
     if options['include_hidden'] == true || options['include_hidden'] == undefined
-      H.tag 'input', type: 'hidden', name: name, value: '', disabled: options['disabled']
+      @tag 'input', type: 'hidden', name: name, value: '', disabled: options['disabled']
     else
       ''
   else
@@ -209,9 +209,9 @@ helper 'select', (object, method_or_prefix_and_method, choices_or_options, optio
       choices_options            = {}
       choices_options['divider'] = options['divider'] unless options['divider'] == undefined
       options['divider']         = undefined
-      return multiple_hidden_input + H.selectTag(name, H.groupedOptionsForSelect(choices, selector, choices_options), options)
+      return multiple_hidden_input + @selectTag(name, @groupedOptionsForSelect(choices, selector, choices_options), options)
 
-  multiple_hidden_input + H.selectTag(name, H.optionsForSelect(choices, selector), options)
+  multiple_hidden_input + @selectTag(name, @optionsForSelect(choices, selector), options)
 
 # TODO: Finish form_options helpers
 # collection_check_boxes
