@@ -2,11 +2,11 @@
 helper 'computeAssetPath', (source, options = {}) ->
   options['type'] ||= 'asset'
 
-  if H.forceAssetDomain
-    options['domain'] ||= H.domain[ options['type'] ]
+  if @forceAssetDomain
+    options['domain'] ||= @domain[ options['type'] ]
 
   format = if options['format'] == undefined
-    H.defaultFormat[ options['type'] ]
+    @defaultFormat[ options['type'] ]
   else
     options['format']
 
@@ -38,7 +38,7 @@ helper 'computeAssetPath', (source, options = {}) ->
   source = if source[0] == '/'
     source
   else
-    prefix_path = H.defaultPath[options['type']]
+    prefix_path = @defaultPath[options['type']]
     if prefix_path[prefix_path.length-1] == '/'
       prefix_path + source
     else
@@ -53,38 +53,38 @@ helper 'computeAssetPath', (source, options = {}) ->
 
 helper 'assetPath', (source, options = {}) ->
   source  = source.toString()
-  options = H._clone options
+  options = @_clone options
 
   fullDoaminPath = /[\w\d]+\:\/\//i
   return source if fullDoaminPath.test(source) || source[0..1] == '//'
 
-  H.computeAssetPath source, options
+  @computeAssetPath source, options
 
 helper 'assetUrl', (source, options = {}) ->
   source  = source.toString()
-  options = H._clone options
+  options = @_clone options
 
   options['domain'] ||= if options['type']
-    H.domain[options['type']] || H.domain.asset
+    @domain[options['type']] || @domain.asset
   else
-    H.domain.asset
+    @domain.asset
 
-  H.assetPath source, options
+  @assetPath source, options
 
 assetPathBuilder = (_type) ->
   type_built = _type
   (source, options = {}) ->
-    options = H._clone options
+    options = @_clone options
     options['type'] = type_built if options['type'] == undefined
-    H.assetPath source, options
+    @assetPath source, options
 
 assetUrlBuilder = (_type) ->
   type_built = _type
   (source, options = {}) ->
-    options = H._clone options
+    options = @_clone options
     options['type'] = type_built if options['type'] == undefined
-    H.assetUrl source, options
+    @assetUrl source, options
 
 for index, type of ['audio', 'font', 'image', 'video', 'javascript', 'stylesheet']
-  helper (type+'Path'), assetPathBuilder(type)
-  helper (type+'Url'),  assetUrlBuilder(type)
+  helper (type+'Path'), assetPathBuilder.call(this,type)
+  helper (type+'Url'),  assetUrlBuilder.call(this,type)
