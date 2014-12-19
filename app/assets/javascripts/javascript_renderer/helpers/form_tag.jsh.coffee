@@ -10,37 +10,37 @@ humanizeToLabel = (name) ->
 fieldTagBuilder = (_type) ->
   type = _type
   (name, value = null, options = {}) ->
-    html_options            = H._clone options
+    html_options            = @_clone options
     html_options['type']    = type
     html_options['name']    = name
     html_options['id']      = sanitizeToId(name) if html_options['id'] == undefined
     html_options['value'] ||= value if value
-    H.tag 'input', html_options
+    @tag 'input', html_options
 
 for i, type of ['color', 'date', 'datetime', 'email', 'file', 'hidden', 'month', 'number', 'password', 'range', 'search', 'text', 'time', 'url', 'week']
-  helper (type+'FieldTag'), fieldTagBuilder(type)
+  helper (type+'FieldTag'), fieldTagBuilder.call(this, type)
 
-helper 'datetimeLocalFieldTag', fieldTagBuilder('datetime-local')
-helper 'telephoneFieldTag',     fieldTagBuilder('tel')
+helper 'datetimeLocalFieldTag', fieldTagBuilder.call(this, 'datetime-local')
+helper 'telephoneFieldTag',     fieldTagBuilder.call(this, 'tel')
 
 alias  'phoneFieldTag', 'telephoneFieldTag'
 
 helper 'buttonTag', (content_or_options = null, options_or_content = {}) ->
-  [content, options] = H._contentOrOptions content_or_options, options_or_content
+  [content, options] = @_contentOrOptions content_or_options, options_or_content
 
   content = content() if typeof content == 'function'
   options['name'] ||= 'button'
   options['type'] ||= 'submit'
-  H.contentTag 'button', (content || 'Button'), options
+  @contentTag 'button', (content || 'Button'), options
 
 helper 'checkBoxTag', (name, value = 1, checked = false, options = {}) ->
-  html_options = H._clone options
+  html_options = @_clone options
   html_options['type']    = 'checkbox'
   html_options['name']    = name
   html_options['value']   = value
   html_options['checked'] = 'checked' if checked
   html_options['id']      = sanitizeToId(name) if html_options['id'] == undefined
-  H.tag 'input', html_options
+  @tag 'input', html_options
 alias  'checkboxTag', 'checkBoxTag'
 
 helper 'fieldSetTag', (legend = null, content_or_options = '', options_or_content = {}) ->
@@ -49,11 +49,11 @@ helper 'fieldSetTag', (legend = null, content_or_options = '', options_or_conten
     legend = null
     content_and_options
   else
-    H._contentOrOptions content_or_options, options_or_content, ''
+    @_contentOrOptions content_or_options, options_or_content, ''
 
   content = content()                                if typeof content == 'function'
-  content = H.contentTag('legend', legend) + content if legend && legend != ''
-  H.contentTag 'fieldset', content, options
+  content = @contentTag('legend', legend) + content if legend && legend != ''
+  @contentTag 'fieldset', content, options
 
 alias  'fieldsetTag', 'fieldSetTag'
 
@@ -73,8 +73,8 @@ buildFormOptions = (url, options) ->
   enforce_utf8 = options['enforce_utf8'] == undefined || options['enforce_utf8']
   options['enforce_utf8'] = undefined
 
-  authenticity_token = if ( H.protectFromForgery && options['authenticity_token'] == undefined ) || options['authenticity_token']
-    if options['authenticity_token'] == undefined || options['authenticity_token'] == true then H.csrfToken else options['authenticity_token']
+  authenticity_token = if ( @protectFromForgery && options['authenticity_token'] == undefined ) || options['authenticity_token']
+    if options['authenticity_token'] == undefined || options['authenticity_token'] == true then @csrfToken else options['authenticity_token']
   else
     false
   options['authenticity_token'] = undefined
@@ -87,9 +87,9 @@ buildFormContent = (content, method, enforce_utf8, authenticity_token) ->
   method_enforcer = method != 'get' && method != 'post'
   form_content += '<div style="display:none">'
   if enforce_utf8 || authenticity_token || method_enforcer
-    form_content += H.utf8EnforcerTag()                        if enforce_utf8
-    form_content += H.methodHiddenTag(method)                  if method_enforcer
-    form_content += H.authenticityTokenTag(authenticity_token) if authenticity_token
+    form_content += @utf8EnforcerTag()                        if enforce_utf8
+    form_content += @methodHiddenTag(method)                  if method_enforcer
+    form_content += @authenticityTokenTag(authenticity_token) if authenticity_token
   form_content += '</div>'
 
   content = content() if typeof content == 'function'
@@ -103,18 +103,18 @@ helper 'formTag', (url = '/', content_or_options, options_or_content) ->
     url = '/'
     content_and_options
   else
-    H._contentOrOptions content_or_options, options_or_content, ''
+    @_contentOrOptions content_or_options, options_or_content, ''
 
-  [ method, enforce_utf8, authenticity_token ] = buildFormOptions url, options
+  [ method, enforce_utf8, authenticity_token ] = buildFormOptions.call this, url, options
 
-  H.contentTag 'form', buildFormContent(content, method, enforce_utf8, authenticity_token), options
+  @contentTag 'form', buildFormContent.call(this, content, method, enforce_utf8, authenticity_token), options
 
 helper 'imageSubmitTag', (source, options = {}) ->
-  options           = H._clone options
-  options['src']  ||= H.imagePath source
+  options           = @_clone options
+  options['src']  ||= @imagePath source
   options['type'] ||= 'image'
-  options['alt']  ||= H.imageAlt source
-  H.tag 'input', options
+  options['alt']  ||= @imageAlt source
+  @tag 'input', options
 
 helper 'labelTag', (name, content_or_options = null, options_or_content = {}) ->
   [content, options] = if typeof name == 'function'
@@ -122,32 +122,32 @@ helper 'labelTag', (name, content_or_options = null, options_or_content = {}) ->
     name = null
     content_and_options
   else
-    H._contentOrOptions content_or_options, options_or_content
+    @_contentOrOptions content_or_options, options_or_content
 
   content        ||= humanizeToLabel name
   options['for'] ||= sanitizeToId(name) if name
-  H.contentTag 'label', content, options
+  @contentTag 'label', content, options
 
 helper 'radioButtonTag', (name, value, checked = false, options = {}) ->
-  options = H._clone options
+  options = @_clone options
   options['type']    = 'radio'
   options['name']    = name
   options['value']   = value
   options['checked'] = 'checked' if checked
   options['id']    ||= sanitizeToId(name) + '_' + sanitizeToId(value)
-  H.tag 'input', options
+  @tag 'input', options
 
 helper 'selectTag', (name, option_tags = '', options = {}) ->
-  options = H._clone options
+  options = @_clone options
 
   if options['include_blank']
-    blank_content = if options['include_blank'] == true then '' else H.htmlEscape( options['include_blank'] )
-    option_tags = H.contentTag('option', blank_content, value: '') + option_tags
+    blank_content = if options['include_blank'] == true then '' else @htmlEscape( options['include_blank'] )
+    option_tags = @contentTag('option', blank_content, value: '') + option_tags
   options['include_blank'] = undefined
 
   if options['prompt']
-    prompt_content = if options['prompt'] == true then H.translate('helpers.select.prompt', default: 'Please select') else H.htmlEscape( options['prompt'] )
-    option_tags = H.contentTag('option', prompt_content, value: '') + option_tags
+    prompt_content = if options['prompt'] == true then @translate('helpers.select.prompt', default: 'Please select') else @htmlEscape( options['prompt'] )
+    option_tags = @contentTag('option', prompt_content, value: '') + option_tags
   options['prompt'] = undefined
 
   html_name = if options['multiple']
@@ -160,14 +160,14 @@ helper 'selectTag', (name, option_tags = '', options = {}) ->
 
   options['id']     = sanitizeToId(name) if options['id'] == undefined
   options['name'] ||= name
-  H.contentTag 'select', option_tags, options
+  @contentTag 'select', option_tags, options
 
 helper 'submitTag', (value = "Save changes", options = {}) ->
-  options = H._clone options
+  options = @_clone options
   options['type']  ||= 'submit'
   options['name']  ||= 'commit'
   options['value'] ||= value
-  H.tag 'input', options
+  @tag 'input', options
 
 handleSizeAttribute = (options) ->
   if typeof options['size'] == 'string'
@@ -179,27 +179,27 @@ handleSizeAttribute = (options) ->
   options['size'] = undefined
 
 helper 'textAreaTag', (name, content_or_options = '', options_or_content = {}) ->
-  [content, options] = H._contentOrOptions content_or_options, options_or_content
+  [content, options] = @_contentOrOptions content_or_options, options_or_content
   handleSizeAttribute options
 
   content = content() if typeof content == 'function'
   content ||= ''
 
   if typeof options['escape'] == 'undefined' || options['escape']
-    content = H.htmlEscape content
+    content = @htmlEscape content
   options['escape'] = undefined
 
   options['id']     = sanitizeToId(name) if options['id'] == undefined
   options['name'] ||= name
-  H.contentTag 'textarea', "\n"+content, options
+  @contentTag 'textarea', "\n"+content, options
 
 alias 'textareaTag', 'textAreaTag'
 
 helper 'authenticityTokenTag', (authenticity_token) ->
-  H.tag 'input', type: 'hidden', name: H.requestForgeryProtectionToken, value: authenticity_token
+  @tag 'input', type: 'hidden', name: @requestForgeryProtectionToken, value: authenticity_token
 
 helper 'methodHiddenTag', (method) ->
-  H.tag 'input', type: 'hidden', name: '_method', value: method
+  @tag 'input', type: 'hidden', name: '_method', value: method
 
 helper 'utf8EnforcerTag', () ->
-  H.tag 'input', type: 'hidden', name: 'utf8', value: "&#x2713;"
+  @tag 'input', type: 'hidden', name: 'utf8', value: "&#x2713;"
