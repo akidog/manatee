@@ -1,6 +1,6 @@
 helper 'urlFor', (source, options = {}) ->
   if @forceDomain
-    options['domain'] ||= H.domain.app
+    options['domain'] ||= @domain.app
   if options['domain']
     source = options['domain'] + source
   if options['format']
