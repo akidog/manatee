@@ -5,6 +5,9 @@ gemspec
 
 gem 'i18n-js', path: '../i18n-js'
 
+gem 'sprockets', '~> 2'
+# gem 'sprockets', '~> 3'
+
 platform :ruby do
   gem 'therubyracer'
 end
