@@ -576,7 +576,14 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_js_helper expected, :selectObject, %( #{ post.to_json }, 'title', '<script>alert(1)</script>' )
   end
 
-  # # TODO: Handle selected and disabled
+  def test_select_with_blocks
+    post = Post.new
+    expected = '<select id="post_title" name="post[title]"><option value="some_value">Some Option</option></select>'
+    assert_dom_helper(   expected, :selectObject, post, 'title'){ '<option value="some_value">Some Option</option>' }
+    assert_dom_js_helper expected, :selectObject, %( #{ post.to_json }, 'title', function(){ return '<option value="some_value">Some Option</option>'; } )
+  end
+
+  # # TODO: Handle selected and disabled on selectObject helper
   # def test_select_with_selected_value
   #   post = Post.new
   #   expected = '<select id="post_category" name="post[category]"><option value="abe" selected="selected">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
@@ -621,7 +628,7 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
   #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { disabled: [ 'hest', 'abe' ] } )
   # end
 
-  # TODO: I didn't found a nice way to support ranges on select helper
+  # TODO: I didn't found a nice way to support ranges on selectObject helper
   # def test_select_with_range
   #   post = Post.new
   #   post.category = 0
