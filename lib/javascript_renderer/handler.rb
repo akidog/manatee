@@ -22,7 +22,6 @@ module JavascriptRenderer
     end
 
     protected
-    # TODO: Wrap rendering in an clojure, so we can set up session data, helpers, tokens, rendering stack trace and more.
     def javascript_template_code(identifier, params)
       token = params[:csrf_token] ? params[:csrf_token].inspect : false
       "(function(){ this.csrfToken = #{token}; return this[#{ identifier.inspect }]; }).call(#{JavascriptRenderer.renderer_namespace})"

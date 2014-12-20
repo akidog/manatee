@@ -96,7 +96,6 @@ buildFormContent = (content, method, enforce_utf8, authenticity_token) ->
 
   form_content + content
 
-# TODO: Think about CSRF Token on server side race conditions
 helper 'formTag', (url = '/', content_or_options, options_or_content) ->
   [content, options] = if typeof url == 'function'
     content_and_options = [url, {}]
