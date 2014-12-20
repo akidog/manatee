@@ -56,6 +56,20 @@ collectionFetcherBlock = (_accessor_method) ->
     (object) ->
       object[accessor_method]
 
+extractNamePrefixAndMethod = ((object, method_or_prefix_and_method) ->
+  [ prefix, method ] = if typeof method_or_prefix_and_method == 'string'
+    class_name = object['_class'] || object['_type'] || object['class'] || object['type']
+    if class_name
+      class_name = class_name() if typeof class_name == 'function'
+      [ @underscore(class_name), method_or_prefix_and_method ]
+    else
+      [ null, method_or_prefix_and_method ]
+  else
+    method_or_prefix_and_method
+
+  name = if prefix then prefix + '[' + method + ']' else method
+  [ name, prefix, method ]).bind(this)
+
 
 
 helper 'optionsForSelect', (container, selectors) ->
@@ -161,24 +175,13 @@ helper 'optionGroupsFromCollectionForSelect', (collection, group_method, group_l
 #          2. If it responds to method [], class is infered by object['_class'] || object['_type'] || object['class'] || object['type'] in that order
 #
 # IMPORTANT: Removed 'index' and 'required' options, they seems too much cryptic to be used
-# TODO: Refactor that select helper, it's too big and confused!
 helper 'select', (object, method_or_prefix_and_method, choices_or_options, options_or_choices) ->
-  [ prefix, method ] = if typeof method_or_prefix_and_method == 'string'
-    class_name = object['_class'] || object['_type'] || object['class'] || object['type']
-    if class_name
-      class_name = class_name() if typeof class_name == 'function'
-      [ @underscore(class_name), method_or_prefix_and_method ]
-    else
-      [ null, method_or_prefix_and_method ]
-  else
-    method_or_prefix_and_method
+  [ name, prefix, method ] = extractNamePrefixAndMethod object, method_or_prefix_and_method
 
   [ choices, options ] = if typeof options_or_choices == 'function'
     [ options_or_choices, @_clone( choices_or_options || {} ) ]
   else
     [ choices_or_options, @_clone( options_or_choices || {} ) ]
-
-  name = if prefix then prefix + '[' + method + ']' else method
 
   multiple_hidden_input = if options['multiple']
     name = name + '[]' if name[-2..-1] != '[]'
@@ -190,10 +193,9 @@ helper 'select', (object, method_or_prefix_and_method, choices_or_options, optio
     ''
   options['include_hidden'] = undefined
 
-  reference = object[method]
-  reference = object[method].toString() if typeof reference == 'number' || reference == true || reference == false
-  selector = (value) ->
-    selected = ( value.toString() && reference == value.toString() )
+  pre_selector = selectorForOptions( object[method] )[0]
+  selector = (value)->
+    selected = pre_selector value
     # Welcome black magic!
     options['prompt'] = undefined if selected
     selected
