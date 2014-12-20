@@ -175,7 +175,7 @@ helper 'optionGroupsFromCollectionForSelect', (collection, group_method, group_l
 #          2. If it responds to method [], class is infered by object['_class'] || object['_type'] || object['class'] || object['type'] in that order
 #
 # IMPORTANT: Removed 'index' and 'required' options, they seems too much cryptic to be used
-helper 'select', (object, method_or_prefix_and_method, choices_or_options, options_or_choices) ->
+helper 'selectObject', (object, method_or_prefix_and_method, choices_or_options, options_or_choices) ->
   [ name, prefix, method ] = extractNamePrefixAndMethod object, method_or_prefix_and_method
 
   [ choices, options ] = if typeof options_or_choices == 'function'
