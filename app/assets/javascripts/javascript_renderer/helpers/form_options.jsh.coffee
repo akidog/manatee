@@ -70,6 +70,18 @@ extractNamePrefixAndMethod = ((object, method_or_prefix_and_method) ->
   name = if prefix then prefix + '[' + method + ']' else method
   [ name, prefix, method ]).bind(this)
 
+multipleHiddenInput = ((name, options) ->
+  multiple_hidden_input = if options['multiple']
+    name = name + '[]' if name[-2..-1] != '[]'
+    if options['include_hidden'] == true || options['include_hidden'] == undefined
+      @tag 'input', type: 'hidden', name: name, value: '', disabled: options['disabled']
+    else
+      ''
+  else
+    ''
+  options['include_hidden'] = undefined
+  [name, multiple_hidden_input]).bind(this)
+
 
 
 helper 'optionsForSelect', (container, selectors) ->
@@ -183,15 +195,7 @@ helper 'selectForObject', (object, method_or_prefix_and_method, choices_or_optio
   else
     [ choices_or_options, @_clone( options_or_choices || {} ) ]
 
-  multiple_hidden_input = if options['multiple']
-    name = name + '[]' if name[-2..-1] != '[]'
-    if options['include_hidden'] == true || options['include_hidden'] == undefined
-      @tag 'input', type: 'hidden', name: name, value: '', disabled: options['disabled']
-    else
-      ''
-  else
-    ''
-  options['include_hidden'] = undefined
+  [ name, multiple_hidden_input ] = multipleHiddenInput name, options
 
   pre_selector = selectorForOptions( object[method] )[0]
   selector = (value)->
