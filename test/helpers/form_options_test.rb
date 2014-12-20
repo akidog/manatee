@@ -583,58 +583,128 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_js_helper expected, :selectForObject, %( #{ post.to_json }, 'title', function(){ return '<option value="some_value">Some Option</option>'; } )
   end
 
-  # # TODO: Handle selected and disabled on selectForObject helper
-  # def test_select_with_selected_value
-  #   post = Post.new
-  #   expected = '<select id="post_category" name="post[category]"><option value="abe" selected="selected">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
-  #   assert_dom_helper    expected, :select, post, :category, ['abe', '<mus>', 'hest'], selected: 'abe'
-  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { selected: 'abe' } )
-  # end
-  #
-  # def test_select_with_selected_nil
-  #   post = Post.new
-  #   post.category = '<mus>'
-  #   expected = '<select id="post_category" name="post[category]"><option value="abe">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
-  #   assert_dom_helper    expected, :select, post, 'category', ['abe', '<mus>', 'hest'], selected: nil
-  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { selected: null } )
-  # end
-  #
+
+  def test_select_with_selected_value
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]"><option value="abe" selected="selected">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :selectForObject, post, :category, ['abe', '<mus>', 'hest'], selected: 'abe'
+    assert_dom_js_helper expected, :selectForObject, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { selected: 'abe' } )
+  end
+
+  def test_select_with_selected_nil
+    post = Post.new
+    post.category = '<mus>'
+    expected = '<select id="post_category" name="post[category]"><option value="abe">abe</option><option value="&lt;mus&gt;">&lt;mus&gt;</option><option value="hest">hest</option></select>'
+    assert_dom_helper    expected, :selectForObject, post, 'category', ['abe', '<mus>', 'hest'], selected: nil
+    assert_dom_js_helper expected, :selectForObject, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { selected: null } )
+  end
+
+  def test_select_not_existing_method_with_selected_value
+    post = Post.new
+    expected = '<select id="post_locale" name="post[locale]"><option value="en">en</option><option value="ru" selected="selected">ru</option></select>'
+    assert_dom_helper    expected, :selectForObject, post, 'locale', ['en', 'ru'], selected: 'ru'
+    assert_dom_js_helper expected, :selectForObject, %( #{ post.to_json }, 'locale', ['en', 'ru'], { selected: 'ru' } )
+  end
+
+  def test_select_with_prompt_and_selected_value
+    post = Post.new
+    expected = '<select id="post_category" name="post[category]"><option value="one">one</option><option selected="selected" value="two">two</option></select>'
+    assert_dom_helper    expected, :selectForObject, post, 'category', ['one', 'two'], selected: 'two', prompt: true
+    assert_dom_js_helper expected, :selectForObject, %( #{ post.to_json }, 'category', ['one', 'two'], { selected: 'two', prompt: true } )
+  end
+
+  # # TODO: Think about not handle disabled option on selectForObject helper
   # def test_select_with_disabled_value
   #   post = Post.new
   #   post.category = '<mus>'
   #   expected = '<select id="post_category" name="post[category]"><option value="abe">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest" disabled="disabled">hest</option></select>'
-  #   assert_dom_helper    expected, :select, post, 'category', ['abe', '<mus>', 'hest'], disabled: 'hest'
-  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { disabled: 'hest' } )
-  # end
-  #
-  # def test_select_not_existing_method_with_selected_value
-  #   post = Post.new
-  #   expected = '<select id="post_locale" name="post[locale]"><option value="en">en</option><option value="ru" selected="selected">ru</option></select>'
-  #   assert_dom_helper    expected, :select, post, 'locale', ['en', 'ru'], selected: 'ru'
-  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'locale', ['en', 'ru'], { selected: 'ru' } )
-  # end
-  #
-  # def test_select_with_prompt_and_selected_value
-  #   post = Post.new
-  #   expected = '<select id="post_category" name="post[category]"><option value="one">one</option><option selected="selected" value="two">two</option></select>'
-  #   assert_dom_helper    expected, :select, post, 'category', ['one', 'two'], selected: 'two', prompt: true
-  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['one', 'two'], { selected: 'two', prompt: true } )
+  #   assert_dom_helper    expected, :selectForObject, post, 'category', ['abe', '<mus>', 'hest'], disabled: 'hest'
+  #   assert_dom_js_helper expected, :selectForObject, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { disabled: 'hest' } )
   # end
   #
   # def test_select_with_disabled_array
   #   post = Post.new
   #   expected = '<select id="post_category" name="post[category]"><option value="abe" disabled="disabled">abe</option><option value="&lt;mus&gt;" selected="selected">&lt;mus&gt;</option><option value="hest" disabled="disabled">hest</option></select>'
-  #   assert_dom_helper    expected, :select, post, 'category', ['abe', '<mus>', 'hest'], disabled: [ 'hest', 'abe' ]
-  #   assert_dom_js_helper expected, :select, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { disabled: [ 'hest', 'abe' ] } )
+  #   assert_dom_helper    expected, :selectForObject, post, 'category', ['abe', '<mus>', 'hest'], disabled: [ 'hest', 'abe' ]
+  #   assert_dom_js_helper expected, :selectForObject, %( #{ post.to_json }, 'category', ['abe', '<mus>', 'hest'], { disabled: [ 'hest', 'abe' ] } )
   # end
 
-  # TODO: I didn't found a nice way to support ranges on selectForObject helper
+  # # TODO: I didn't found a nice way to support ranges on selectForObject helper
   # def test_select_with_range
   #   post = Post.new
   #   post.category = 0
   #   expected = '<select id="post_category" name="post[category]"><option value="1">1</option>\n<option value="2">2</option>\n<option value="3">3</option></select>'
-  #   assert_dom_helper expected, :select, post, 'category', 1..3
+  #   assert_dom_helper expected, :selectForObject, post, 'category', 1..3
   # end
+
+  def test_collection_select
+    post = Post.new
+    post.author_name = 'Babe'
+    expected = '<select id="post_author_name" name="post[author_name]"><option value="&lt;Abe&gt;">&lt;Abe&gt;</option><option value="Babe" selected="selected">Babe</option><option value="Cabe">Cabe</option></select>'
+    assert_dom_helper expected, :collectionSelectForObject, post, :author_name, dummy_posts, :author_name, :author_name
+  end
+
+  def test_collection_select_with_blank_and_style
+    post = Post.new
+    post.author_name = 'Babe'
+    expected = '<select id="post_author_name" name="post[author_name]" style="width: 200px"><option value=""></option><option value="&lt;Abe&gt;">&lt;Abe&gt;</option><option value="Babe" selected="selected">Babe</option><option value="Cabe">Cabe</option></select>'
+    assert_dom_helper expected, :collectionSelectForObject, post, :author_name, dummy_posts, :author_name, :author_name, include_blank: true, style: 'width: 200px'
+  end
+
+  def test_collection_select_with_blank_as_string_and_style
+    post = Post.new
+    post.author_name = 'Babe'
+    expected = '<select id="post_author_name" name="post[author_name]" style="width: 200px"><option value="">No Selection</option><option value="&lt;Abe&gt;">&lt;Abe&gt;</option><option value="Babe" selected="selected">Babe</option><option value="Cabe">Cabe</option></select>'
+    assert_dom_helper expected, :collectionSelectForObject, post, :author_name, dummy_posts, :author_name, :author_name, include_blank: 'No Selection', style: 'width: 200px'
+  end
+
+  def test_collection_select_with_multiple_option_appends_array_brackets_and_hidden_input
+    post = Post.new
+    post.author_name = 'Babe'
+    expected = '<input type="hidden" name="post[author_name][]" value=""/><select id="post_author_name" name="post[author_name][]" multiple="multiple"><option value=""></option><option value="&lt;Abe&gt;">&lt;Abe&gt;</option><option value="Babe" selected="selected">Babe</option><option value="Cabe">Cabe</option></select>'
+    assert_dom_helper expected, :collectionSelectForObject, post, :author_name, dummy_posts, :author_name, :author_name, include_blank: true, multiple: true
+    assert_dom_helper expected, :collectionSelectForObject, post, :author_name, dummy_posts, :author_name, :author_name, include_blank: true, multiple: true, name: 'post[author_name][]'
+  end
+
+  # def test_collection_select_with_blank_and_selected
+  #   @post = Post.new
+  #   @post.author_name = "Babe"
+  #
+  #   assert_dom_equal(
+  #     %{<select id="post_author_name" name="post[author_name]"><option value=""></option>\n<option value="&lt;Abe&gt;" selected="selected">&lt;Abe&gt;</option>\n<option value="Babe">Babe</option>\n<option value="Cabe">Cabe</option></select>},
+  #     collection_select("post", "author_name", dummy_posts, "author_name", "author_name", {:include_blank => true, :selected => "<Abe>"})
+  #   )
+  # end
+  #
+  # def test_collection_select_with_disabled
+  #   @post = Post.new
+  #   @post.author_name = "Babe"
+  #
+  #   assert_dom_equal(
+  #     "<select id=\"post_author_name\" name=\"post[author_name]\"><option value=\"&lt;Abe&gt;\">&lt;Abe&gt;</option>\n<option value=\"Babe\" selected=\"selected\">Babe</option>\n<option value=\"Cabe\" disabled=\"disabled\">Cabe</option></select>",
+  #     collection_select("post", "author_name", dummy_posts, "author_name", "author_name", :disabled => 'Cabe')
+  #   )
+  # end
+  #
+  # def test_collection_select_with_proc_for_value_method
+  #   @post = Post.new
+  #
+  #   assert_dom_equal(
+  #     "<select id=\"post_author_name\" name=\"post[author_name]\"><option value=\"&lt;Abe&gt;\">&lt;Abe&gt; went home</option>\n<option value=\"Babe\">Babe went home</option>\n<option value=\"Cabe\">Cabe went home</option></select>",
+  #     collection_select("post", "author_name", dummy_posts, lambda { |p| p.author_name }, "title")
+  #   )
+  # end
+  #
+  # def test_collection_select_with_proc_for_text_method
+  #   @post = Post.new
+  #
+  #   assert_dom_equal(
+  #     "<select id=\"post_author_name\" name=\"post[author_name]\"><option value=\"&lt;Abe&gt;\">&lt;Abe&gt; went home</option>\n<option value=\"Babe\">Babe went home</option>\n<option value=\"Cabe\">Cabe went home</option></select>",
+  #     collection_select("post", "author_name", dummy_posts, "author_name", lambda { |p| p.title })
+  #   )
+  # end
+
+
 
   protected
   def dummy_posts

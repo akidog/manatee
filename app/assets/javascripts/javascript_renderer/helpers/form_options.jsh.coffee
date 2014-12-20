@@ -80,7 +80,7 @@ multipleHiddenInput = ((name, options) ->
   else
     ''
   options['include_hidden'] = undefined
-  [name, multiple_hidden_input]).bind(this)
+  [ name, multiple_hidden_input ]).bind(this)
 
 
 
@@ -186,7 +186,8 @@ helper 'optionGroupsFromCollectionForSelect', (collection, group_method, group_l
 #          1. If it don't responds to method [], class if infered by .class method
 #          2. If it responds to method [], class is infered by object['_class'] || object['_type'] || object['class'] || object['type'] in that order
 #
-# IMPORTANT: Removed 'index' and 'required' options, they seems too much cryptic to be used
+# IMPORTANT: Removed 'required' option, it seems too much cryptic to be used
+# TODO: Add index option
 helper 'selectForObject', (object, method_or_prefix_and_method, choices_or_options, options_or_choices) ->
   [ name, prefix, method ] = extractNamePrefixAndMethod object, method_or_prefix_and_method
 
@@ -197,12 +198,26 @@ helper 'selectForObject', (object, method_or_prefix_and_method, choices_or_optio
 
   [ name, multiple_hidden_input ] = multipleHiddenInput name, options
 
-  pre_selector = selectorForOptions( object[method] )[0]
-  selector = (value)->
-    selected = pre_selector value
-    # Welcome black magic!
-    options['prompt'] = undefined if selected
-    selected
+  # reference = options['selected'] || object[method]
+  # options['selected'] = undefined
+  # pre_selector = selectorForOptions( reference )[0]
+  # selector = (value) ->
+  #   selected = pre_selector value
+  #   # Welcome black magic!
+  #   options['prompt'] = undefined if selected
+  #   selected
+
+  selector = if options['selected'] == null
+    undefined
+  else
+    reference    = options['selected'] || object[method]
+    pre_selector = selectorForOptions( reference )[0]
+    (value) ->
+      selected = pre_selector value
+      # Welcome black magic!
+      options['prompt'] = undefined if selected
+      selected
+  options['selected'] = undefined
 
   if typeof choices == 'object'
     unless choices instanceof Array
@@ -218,6 +233,28 @@ helper 'selectForObject', (object, method_or_prefix_and_method, choices_or_optio
       return multiple_hidden_input + @selectTag(name, @groupedOptionsForSelect(choices, selector, choices_options), options)
 
   multiple_hidden_input + @selectTag(name, @optionsForSelect(choices, selector), options)
+
+helper 'collectionSelectForObject', (object, method_or_prefix_and_method, collection, value_method, text_method, options)->
+  [ name, prefix, method ] = extractNamePrefixAndMethod object, method_or_prefix_and_method
+
+  options = if options != undefined then @_clone(options) else {}
+
+  [ name, multiple_hidden_input ] = multipleHiddenInput name, options
+
+  selector = if options['selected'] == null
+    undefined
+  else
+    reference    = options['selected'] || object[method]
+    pre_selector = selectorForOptionsFromCollection( reference, value_method )[0]
+    (value) ->
+      selected = pre_selector value
+      # Welcome black magic!
+      options['prompt'] = undefined if selected
+      selected
+  options['selected'] = undefined
+
+  choices = @optionsFromCollectionForSelect collection, value_method, text_method, selector
+  multiple_hidden_input + @selectTag(name, choices, options)
 
 # TODO: Finish form_options helpers
 # collection_check_boxes
