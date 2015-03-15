@@ -6,17 +6,17 @@ require 'execjs'
 require 'i18n-js'
 require 'sprockets'
 
-require 'javascript_renderer/version'
+require 'manatee/version'
 
-require 'javascript_renderer/config'
-require 'javascript_renderer/handler'
-require 'javascript_renderer/sprockets'
+require 'manatee/config'
+require 'manatee/handler'
+require 'manatee/sprockets'
 
 if defined? Rails
-  require 'javascript_renderer/rails'
+  require 'manatee/rails'
 end
 
-module JavascriptRenderer
+module Manatee
   def self.default_config(name, value = nil)
     define_singleton_method(name) do
       variable = :"@#{name}"
@@ -72,16 +72,16 @@ module JavascriptRenderer
     if defined? Rails
       ::Rails.application.assets
     else
-      @assets or raise("JavascriptRenderer's Sprockets environment is not configured, call: JavascriptRenderer.config{ |c| c.assets = sprockets_environment }")
+      @assets or raise("Manatee's Sprockets environment is not configured, call: Manatee.config{ |c| c.assets = sprockets_environment }")
     end
   end
 
   def self.config(&block)
-    yield JavascriptRenderer::Config.new
+    yield Manatee::Config.new
   end
 
   def self.context
-    JavascriptRenderer::Config.context
+    Manatee::Config.context
   end
 
 end

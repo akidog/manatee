@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class AssetUrlTest < JavascriptRenderer::ViewTest
+class AssetUrlTest < Manatee::ViewTest
 
   def setup
     config_renderer do |config|

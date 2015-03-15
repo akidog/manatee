@@ -1,4 +1,4 @@
-# JavascriptRenderer
+# Manatee
 
 Javascript Template Render [for Rails]?
 
@@ -11,7 +11,7 @@ Other ExecJS adapter like Node.js, doesn't translates Ruby lambdas to Javascript
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'javascript_renderer'
+gem 'manatee'
 ```
 
 And then execute:
@@ -20,7 +20,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install javascript_renderer
+    $ gem install manatee
 
 ## Usage
 
@@ -28,7 +28,7 @@ TODO: Write usage instructions here
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/javascript_renderer/fork )
+1. Fork it ( https://github.com/[my-github-username]/manatee/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

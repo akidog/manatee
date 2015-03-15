@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class NumberTest < JavascriptRenderer::ViewTest
+class NumberTest < Manatee::ViewTest
 
   def test_number_to_currency
     assert_helper nil,                                     :numberToCurrency, nil

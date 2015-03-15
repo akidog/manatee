@@ -1,4 +1,4 @@
-module JavascriptRenderer
+module Manatee
   module Rails
     class RoutesCompiler
       def compile

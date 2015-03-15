@@ -1,8 +1,8 @@
-//= require      javascript_renderer_railsless
+//= require      manatee_railsless
 //= require_tree ./views
 
-<% if JavascriptRenderer.protect_from_forgery && defined? JavascriptRenderer::ViewTest %>
-  Renderer.csrfToken = <%= JavascriptRenderer::ViewTest::CSRF_TOKEN.inspect %>;
+<% if Manatee.protect_from_forgery && defined? Manatee::ViewTest %>
+  Renderer.csrfToken = <%= Manatee::ViewTest::CSRF_TOKEN.inspect %>;
 <% end %>
 
 I18n.translations = <%= YAML.load_file( File.expand_path('../translations.en.yml', __FILE__) ).to_json %>;

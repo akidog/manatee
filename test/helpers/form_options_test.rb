@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class FormOptionsTest < JavascriptRenderer::ViewTest
+class FormOptionsTest < Manatee::ViewTest
 
   Post      = Struct.new 'Post',      :title, :author_name, :body, :secret, :written_on, :category, :origin, :allow_comments
   Album     = Struct.new 'Album',     :id, :title, :genre

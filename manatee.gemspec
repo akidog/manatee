@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'javascript_renderer/version'
+require 'manatee/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'javascript_renderer'
-  spec.version       = JavascriptRenderer::VERSION
+  spec.name          = 'manatee'
+  spec.version       = Manatee::VERSION
   spec.summary       = %q{Javascript Template Render [for Rails]?}
   spec.description   = %q{Renders javascript templates with ease on client and server sides}
   spec.homepage      = ''
@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Dalton Pinto', 'Felipe JAPM']
   spec.email         = ['dalton@akidog.com.br', 'felipe@akidog.com.br']
 
-  spec.files         = Dir['{app,bin,lib,test,spec}/**/*'] + ['javascript_renderer.gemspec', 'LICENSE.txt', 'Rakefile', 'Gemfile', 'README.mdown']
+  spec.files         = Dir['{app,bin,lib,test,spec}/**/*'] + ['manatee.gemspec', 'LICENSE.txt', 'Rakefile', 'Gemfile', 'README.mdown']
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.executables   = spec.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
 

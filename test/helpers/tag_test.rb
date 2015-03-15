@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class TagTest < JavascriptRenderer::ViewTest
+class TagTest < Manatee::ViewTest
 
   def test_simple_tag
     assert_dom_helper '<simple />', :tag, 'simple'

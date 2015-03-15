@@ -1,4 +1,4 @@
-var <%= JavascriptRenderer.router_namespace %> = function(){
+var <%= Manatee.router_namespace %> = function(){
 
   var RoutesVisitor = function(){
 
@@ -150,7 +150,7 @@ var <%= JavascriptRenderer.router_namespace %> = function(){
           }
         }
 
-        return <%= JavascriptRenderer.renderer_namespace %>.urlFor(this._router._visitor.call(params, this.ast));
+        return <%= Manatee.renderer_namespace %>.urlFor(this._router._visitor.call(params, this.ast));
       }
     };
   }
@@ -159,12 +159,12 @@ var <%= JavascriptRenderer.router_namespace %> = function(){
     return this._router._fullDomain + this.path.apply(this, arguments);
   }
 
-  var compiledRoutes = <%= JavascriptRenderer::Rails::RoutesCompiler.new.compile.to_json %>;
+  var compiledRoutes = <%= Manatee::Rails::RoutesCompiler.new.compile.to_json %>;
 
   var routes = {
     _routes:     compiledRoutes,
     _visitor:    RoutesVisitor,
-    _fullDomain: <%= JavascriptRenderer.full_domain.inspect %>
+    _fullDomain: <%= Manatee.full_domain.inspect %>
   }
 
   for( var i in compiledRoutes ){
@@ -179,11 +179,11 @@ var <%= JavascriptRenderer.router_namespace %> = function(){
     (function(r){
       var route = r;
 
-      <%= JavascriptRenderer.renderer_namespace %>.helper(route.helper_name+'Path', function(){
+      <%= Manatee.renderer_namespace %>.helper(route.helper_name+'Path', function(){
         return route.path.apply(route, arguments);
       });
 
-      <%= JavascriptRenderer.renderer_namespace %>.helper(route.helper_name+'Url', function(){
+      <%= Manatee.renderer_namespace %>.helper(route.helper_name+'Url', function(){
         return route.url.apply(route, arguments);
       });
     })(route);

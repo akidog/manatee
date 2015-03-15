@@ -1,4 +1,4 @@
-module JavascriptRenderer
+module Manatee
   module Rails
     class HashVisitor < ActionDispatch::Journey::Visitors::Visitor
 

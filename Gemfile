@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in javascript_renderer.gemspec
+# Specify your gem's dependencies in manatee.gemspec
 gemspec
 
 gem 'i18n-js', path: '../i18n-js'

@@ -1,4 +1,4 @@
-module JavascriptRenderer
+module Manatee
   module Rails
     class Resolver < ActionView::Resolver
 
@@ -30,7 +30,7 @@ module JavascriptRenderer
 
       def find_asset_template(path, locale, format)
         identifier = [normalize_identifier(path), locale, format].compact.join '.'
-        build_template JavascriptRenderer.assets["#{identifier}.jst"], path, identifier, format
+        build_template Manatee.assets["#{identifier}.jst"], path, identifier, format
       end
 
       def normalize_path(prefix, name, partial)

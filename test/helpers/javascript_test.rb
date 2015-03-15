@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class JavascriptTest < JavascriptRenderer::ViewTest
+class JavascriptTest < Manatee::ViewTest
 
   def test_escape_javascript
     assert_helper '', :escapeJavascript, nil

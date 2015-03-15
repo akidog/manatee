@@ -1,4 +1,4 @@
-module JavascriptRenderer
+module Manatee
   class DomAssertion
     attr_reader :node
 

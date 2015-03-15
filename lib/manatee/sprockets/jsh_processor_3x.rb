@@ -1,4 +1,4 @@
-module JavascriptRenderer
+module Manatee
   module Sprockets
     class JshProcessor
       def self.call(input)
@@ -24,7 +24,7 @@ module JavascriptRenderer
       end
 
       def self.subscribe(environment)
-        environment.register_engine '.jsh', JavascriptRenderer::Sprockets::JshProcessor, mime_type: 'application/javascript'
+        environment.register_engine '.jsh', Manatee::Sprockets::JshProcessor, mime_type: 'application/javascript'
       end
     end
   end

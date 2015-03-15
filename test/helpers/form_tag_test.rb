@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class FormTagTest < JavascriptRenderer::ViewTest
+class FormTagTest < Manatee::ViewTest
 
   def setup
     config_renderer do |config|

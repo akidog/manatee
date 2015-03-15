@@ -1,6 +1,6 @@
 require 'tilt'
 
-module JavascriptRenderer
+module Manatee
   module Sprockets
     class JshProcessor < Tilt::Template
       attr_reader :namespace
@@ -25,7 +25,7 @@ module JavascriptRenderer
       end
 
       def self.subscribe(environment)
-        environment.register_engine '.jsh', JavascriptRenderer::Sprockets::JshProcessor
+        environment.register_engine '.jsh', Manatee::Sprockets::JshProcessor
       end
     end
   end

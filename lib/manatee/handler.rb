@@ -1,6 +1,6 @@
 require 'singleton'
 
-module JavascriptRenderer
+module Manatee
   class Handler
     include Singleton
 
@@ -24,7 +24,7 @@ module JavascriptRenderer
     protected
     def javascript_template_code(identifier, params)
       token = params[:csrf_token] ? params[:csrf_token].inspect : false
-      "(function(){ this.csrfToken = #{token}; return #{JavascriptRenderer.template_namespace}[#{ identifier.inspect }]; }).call(#{JavascriptRenderer.renderer_namespace})"
+      "(function(){ this.csrfToken = #{token}; return #{Manatee.template_namespace}[#{ identifier.inspect }]; }).call(#{Manatee.renderer_namespace})"
     end
 
     def check_context
@@ -38,7 +38,7 @@ module JavascriptRenderer
     end
 
     def views_asset
-      JavascriptRenderer.assets[ JavascriptRenderer.views_asset ]
+      Manatee.assets[ Manatee.views_asset ]
     end
 
   end

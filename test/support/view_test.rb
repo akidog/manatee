@@ -1,4 +1,4 @@
-module JavascriptRenderer
+module Manatee
   class ViewTest < Test::Unit::TestCase
 
     CSRF_TOKEN = "gYGgKHmGVZdc56rk5atNpQed2Vntd16L+LVxcBsrEEU="
@@ -25,11 +25,11 @@ module JavascriptRenderer
     end
 
     def js_helper_call(helper_name, js_params)
-      javascript_call "#{JavascriptRenderer.renderer_namespace}[#{helper_name.to_s.inspect}](#{js_params})"
+      javascript_call "#{Manatee.renderer_namespace}[#{helper_name.to_s.inspect}](#{js_params})"
     end
 
     def helper_call(helper_name, *attributes, &block)
-      helper_function = "#{JavascriptRenderer.renderer_namespace}[#{helper_name.to_s.inspect}]"
+      helper_function = "#{Manatee.renderer_namespace}[#{helper_name.to_s.inspect}]"
       if block_given?
         attributes << block
       end
@@ -53,13 +53,13 @@ module JavascriptRenderer
     end
 
     def template_handler
-      JavascriptRenderer::Handler.instance
+      Manatee::Handler.instance
     end
 
     def config_renderer(&block)
       return if self.class.config_js_already?
 
-      JavascriptRenderer.config do |config|
+      Manatee.config do |config|
         config.assets = self.class.sprockets_environment
         yield config
       end
@@ -68,7 +68,7 @@ module JavascriptRenderer
     end
 
     def eval_simulated_template(raw_template)
-      javascript_call "function(){ return (#{raw_template}); }.call(#{JavascriptRenderer.renderer_namespace})"
+      javascript_call "function(){ return (#{raw_template}); }.call(#{Manatee.renderer_namespace})"
     end
 
     def self.sprockets_environment
@@ -78,7 +78,7 @@ module JavascriptRenderer
       environment.append_path File.join(Gem.loaded_specs['i18n-js'].full_gem_path, 'app/assets/javascripts')
 
       # Done this way to handle differences between sprockets 3.x and 2.x
-      JavascriptRenderer::Sprockets::JshProcessor.subscribe environment
+      Manatee::Sprockets::JshProcessor.subscribe environment
 
       environment
     end
