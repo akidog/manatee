@@ -30,11 +30,13 @@ __It's unstable, may change.__
 
 Create an initializer file, for example, config/initializers/manatee.rb with:
 
+```ruby
     Manatee.subscribe_on_rails
     # Manatee.config do |config|
     #   config.some_conf = 'value'
     #   config.lambda_conf{ |c| 'value' }
     # end
+```
 
 If need to change an option, for now, check out at lib/manatee.rb to see all options, I dont want to document that right now.
 
