@@ -24,11 +24,29 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+__It's unstable, may change.__
+
+### With Rails
+
+Create an initializer file, for example, config/initializers/manatee.rb with:
+
+    Manatee.subscribe_on_rails
+    # Manatee.config do |config|
+    #   config.some_conf = 'value'
+    #   config.lambda_conf{ |c| 'value' }
+    # end
+
+If need to change an option, for now, check out at lib/manatee.rb to see all options, I dont want to document that right now.
+
+As you see, I'm lazy enough to not explain how to use it... Figure it out by yourself.
+
+### Without Rails
+
+Check out test file test/test\_helper.rb, and lib/manatee.rb to see all options and understand how to use it with any app that uses sprockets.
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/manatee/fork )
+1. Fork it ( https://github.com/akidog/manatee/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

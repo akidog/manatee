@@ -1,3 +1,4 @@
+require 'manatee/rails/helper'
 require 'manatee/rails/handler'
 require 'manatee/rails/resolver'
 require 'manatee/rails/extensions'
