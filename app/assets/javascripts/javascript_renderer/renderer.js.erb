@@ -4,8 +4,6 @@ I18n.locale        = <%= JavascriptRenderer.locale.to_s.inspect %>;
 var <%= JavascriptRenderer.template_namespace %> = <%= JavascriptRenderer.template_namespace %> || {};
 var <%= JavascriptRenderer.renderer_namespace %> = {};
 
-// var Renderer = {};
-
 (function(){
   function _pushStack(view_name, params){
     var old_params = {};
@@ -53,4 +51,3 @@ var <%= JavascriptRenderer.renderer_namespace %> = {};
   this.helper('cleanStack', cleanStack);
 
 }).call(<%= JavascriptRenderer.renderer_namespace %>);
-// }).call(Renderer);

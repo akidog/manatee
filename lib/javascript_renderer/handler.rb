@@ -24,7 +24,7 @@ module JavascriptRenderer
     protected
     def javascript_template_code(identifier, params)
       token = params[:csrf_token] ? params[:csrf_token].inspect : false
-      "(function(){ this.csrfToken = #{token}; return this[#{ identifier.inspect }]; }).call(#{JavascriptRenderer.renderer_namespace})"
+      "(function(){ this.csrfToken = #{token}; return #{JavascriptRenderer.template_namespace}[#{ identifier.inspect }]; }).call(#{JavascriptRenderer.renderer_namespace})"
     end
 
     def check_context

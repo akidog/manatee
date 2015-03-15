@@ -666,35 +666,19 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
     assert_dom_helper expected, :collectionSelectForObject, post, :author_name, dummy_posts, :author_name, :author_name, include_blank: true, multiple: true, name: 'post[author_name][]'
   end
 
-  # def test_collection_select_with_blank_and_selected
-  #   @post = Post.new
-  #   @post.author_name = "Babe"
-  #
-  #   assert_dom_equal(
-  #     %{<select id="post_author_name" name="post[author_name]"><option value=""></option>\n<option value="&lt;Abe&gt;" selected="selected">&lt;Abe&gt;</option>\n<option value="Babe">Babe</option>\n<option value="Cabe">Cabe</option></select>},
-  #     collection_select("post", "author_name", dummy_posts, "author_name", "author_name", {:include_blank => true, :selected => "<Abe>"})
-  #   )
-  # end
-  #
-  # def test_collection_select_with_disabled
-  #   @post = Post.new
-  #   @post.author_name = "Babe"
-  #
-  #   assert_dom_equal(
-  #     "<select id=\"post_author_name\" name=\"post[author_name]\"><option value=\"&lt;Abe&gt;\">&lt;Abe&gt;</option>\n<option value=\"Babe\" selected=\"selected\">Babe</option>\n<option value=\"Cabe\" disabled=\"disabled\">Cabe</option></select>",
-  #     collection_select("post", "author_name", dummy_posts, "author_name", "author_name", :disabled => 'Cabe')
-  #   )
-  # end
-  #
-  # def test_collection_select_with_proc_for_value_method
-  #   @post = Post.new
-  #
-  #   assert_dom_equal(
-  #     "<select id=\"post_author_name\" name=\"post[author_name]\"><option value=\"&lt;Abe&gt;\">&lt;Abe&gt; went home</option>\n<option value=\"Babe\">Babe went home</option>\n<option value=\"Cabe\">Cabe went home</option></select>",
-  #     collection_select("post", "author_name", dummy_posts, lambda { |p| p.author_name }, "title")
-  #   )
-  # end
-  #
+  def test_collection_select_with_blank_and_selected
+    post = Post.new
+    post.author_name = 'Babe'
+    expected = '<select id="post_author_name" name="post[author_name]"><option value=""></option><option value="&lt;Abe&gt;" selected="selected">&lt;Abe&gt;</option><option value="Babe">Babe</option><option value="Cabe">Cabe</option></select>'
+    assert_dom_helper expected, :collectionSelectForObject, post, :author_name, dummy_posts, :author_name, :author_name, include_blank: true, selected: '<Abe>'
+  end
+
+  def test_collection_select_with_proc_for_value_method
+    post = Post.new
+    expected = '<select id="post_author_name" name="post[author_name]"><option value="&lt;Abe&gt;">&lt;Abe&gt; went home</option><option value="Babe">Babe went home</option><option value="Cabe">Cabe went home</option></select>'
+    assert_dom_helper expected, :collectionSelectForObject, post, :author_name, dummy_posts, lambda{ |jr, post| post.author_name }, :title
+  end
+
   # def test_collection_select_with_proc_for_text_method
   #   @post = Post.new
   #
@@ -704,7 +688,16 @@ class FormOptionsTest < JavascriptRenderer::ViewTest
   #   )
   # end
 
-
+  # # TODO: Think about not handle disabled option on collectionSelectForObject helper
+  # def test_collection_select_with_disabled
+  #   @post = Post.new
+  #   @post.author_name = "Babe"
+  #
+  #   assert_dom_equal(
+  #     "<select id=\"post_author_name\" name=\"post[author_name]\"><option value=\"&lt;Abe&gt;\">&lt;Abe&gt;</option>\n<option value=\"Babe\" selected=\"selected\">Babe</option>\n<option value=\"Cabe\" disabled=\"disabled\">Cabe</option></select>",
+  #     collection_select("post", "author_name", dummy_posts, "author_name", "author_name", :disabled => 'Cabe')
+  #   )
+  # end
 
   protected
   def dummy_posts

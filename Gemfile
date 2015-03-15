@@ -17,6 +17,7 @@ platform :jruby do
 end
 
 group :development, :test do
-  gem 'pry'
   gem 'eco'
+  gem 'pry'
+  gem 'test-unit'
 end

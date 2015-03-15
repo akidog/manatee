@@ -14,5 +14,3 @@ module JavascriptRenderer
     end
   end
 end
-
-# ActionView::Template.register_template_handler :'jst', JavascriptRenderer::Rails::Handler.instance

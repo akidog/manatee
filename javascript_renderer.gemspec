@@ -7,12 +7,12 @@ Gem::Specification.new do |spec|
   spec.name          = 'javascript_renderer'
   spec.version       = JavascriptRenderer::VERSION
   spec.summary       = %q{Javascript Template Render [for Rails]?}
-  spec.description   = %q{Render javascript templates on server side}
+  spec.description   = %q{Renders javascript templates with ease on client and server sides}
   spec.homepage      = ''
   spec.license       = 'MIT'
 
-  spec.authors       = ['Dalton Pinto']
-  spec.email         = ['dalthon@aluno.ita.br']
+  spec.authors       = ['Dalton Pinto', 'Felipe JAPM']
+  spec.email         = ['dalton@akidog.com.br', 'felipe@akidog.com.br']
 
   spec.files         = Dir['{app,bin,lib,test,spec}/**/*'] + ['javascript_renderer.gemspec', 'LICENSE.txt', 'Rakefile', 'Gemfile', 'README.mdown']
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})

@@ -150,7 +150,7 @@ var <%= JavascriptRenderer.router_namespace %> = function(){
           }
         }
 
-        return H.urlFor(this._router._visitor.call(params, this.ast));
+        return <%= JavascriptRenderer.renderer_namespace %>.urlFor(this._router._visitor.call(params, this.ast));
       }
     };
   }
