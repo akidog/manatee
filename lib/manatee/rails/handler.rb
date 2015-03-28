@@ -7,8 +7,12 @@ module Manatee
       end
 
       def call(template)
+        locals     = (template.locals || []).map{ |key| "#{key}: #{key}"}.join ', '
         identifier = template.identifier
-        "Manatee::Handler.instance.eval_template #{ identifier.inspect }, self.assigns.except('marked_for_same_origin_verification').merge(csrf_token: form_authenticity_token)"
+        <<-EOS
+          _template_params = self.assigns.except('marked_for_same_origin_verification').merge(csrf_token: form_authenticity_token).merge(#{locals})
+          Manatee::Handler.instance.eval_template #{ identifier.inspect }, _template_params
+        EOS
       end
 
     end

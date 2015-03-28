@@ -5,7 +5,7 @@ module Manatee
     include Singleton
 
     def eval_template(identifier, params = {})
-      context.call javascript_template_code(identifier, params), params
+      context.call(javascript_template_code(identifier, params), params).html_safe
     end
 
     def eval(javascript_code)
@@ -24,7 +24,13 @@ module Manatee
     protected
     def javascript_template_code(identifier, params)
       token = params[:csrf_token] ? params[:csrf_token].inspect : false
-      "(function(){ this.csrfToken = #{token}; return #{Manatee.template_namespace}[#{ identifier.inspect }]; }).call(#{Manatee.renderer_namespace})"
+      <<-EOS
+      (function(params){
+        #{Manatee.renderer_namespace}.csrfToken = #{token};
+        jst_source = #{Manatee.template_namespace}[#{ identifier.inspect }] || #{Manatee.template_namespace}[#{ identifier.match(/\A#{Manatee.views_asset}\//).try(:post_match).try(:inspect) }];
+        return jst_source.call(params);
+      })
+      EOS
     end
 
     def check_context
