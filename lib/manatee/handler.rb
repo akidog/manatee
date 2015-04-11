@@ -25,11 +25,11 @@ module Manatee
     def javascript_template_code(identifier, params)
       token = params[:csrf_token] ? params[:csrf_token].inspect : false
       <<-EOS
-      (function(params){
+      (function(){
         #{Manatee.renderer_namespace}.csrfToken = #{token};
         jst_source = #{Manatee.template_namespace}[#{ identifier.inspect }] || #{Manatee.template_namespace}[#{ identifier.match(/\A#{Manatee.views_asset}\//).try(:post_match).try(:inspect) }];
-        return jst_source.call(params);
-      })
+        return jst_source;
+      })(#{Manatee.renderer_namespace})
       EOS
     end
 

@@ -187,6 +187,7 @@ class AssetUrlTest < Manatee::ViewTest
     %( "xml.png"                                            ) => '/images/xml.png',
     %( "dir/xml.png"                                        ) => '/images/dir/xml.png',
     %( "/dir/xml.png"                                       ) => '/dir/xml.png',
+    %( "http://dir.com/xml"                                 ) => 'http://dir.com/xml',
     %( "xml",          { domain: 'http://www.example.com' } ) => 'http://www.example.com/images/xml',
     %( "xml.png",      { domain: 'http://www.example.com' } ) => 'http://www.example.com/images/xml.png',
     %( "dir/xml.png",  { domain: 'http://www.example.com' } ) => 'http://www.example.com/images/dir/xml.png',

@@ -7,7 +7,8 @@ module Manatee
       end
 
       def call(template)
-        locals     = (template.locals || []).map{ |key| "#{key}: #{key}"}.join ', '
+        locals = (template.locals || []).map{ |key| "#{key}: #{key}"}.join ', '
+        locals = 'Hash.new' if locals.blank?
         identifier = template.identifier
         <<-EOS
           _template_params = self.assigns.except('marked_for_same_origin_verification').merge(csrf_token: form_authenticity_token).merge(#{locals})
