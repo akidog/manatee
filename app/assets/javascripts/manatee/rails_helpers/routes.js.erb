@@ -141,16 +141,36 @@ var <%= Manatee.router_namespace %> = function(){
           optionalMap[this.optional_names[i]] = true;
         }
 
-        var queryParams = {};
+        // var queryParams = {};
+        // for(var k in options){
+        //   if(optionalMap[k]){
+        //     params[k] = options[k];
+        //   } else {
+        //     queryParams[k] = options[k];
+        //   }
+        // }
+
+        var query_string       = '';
+        var first_query_string = true;
         for(var k in options){
           if(optionalMap[k]){
             params[k] = options[k];
           } else {
-            queryParams[k] = options[k];
+            if( first_query_string ){
+              first_query_string = false;
+            } else {
+              query_string += '&';
+            }
+            query_string += (encodeURIComponent(k) + '=' + encodeURIComponent(options[k]));
           }
         }
 
-        return <%= Manatee.renderer_namespace %>.urlFor(this._router._visitor.call(params, this.ast));
+        var path = <%= Manatee.renderer_namespace %>.urlFor(this._router._visitor.call(params, this.ast));
+        if(query_string.length > 0){
+          return path + '?' + query_string;
+        } else {
+          return path;
+        }
       }
     };
   }
