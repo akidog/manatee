@@ -29,8 +29,8 @@ module Manatee
       end
 
       def find_asset_template(path, locale, format)
-        identifier = [normalize_identifier(path), locale, format].compact.join '.'
-        asset_source = Manatee.assets["#{identifier}.jst"] || Manatee.assets[identifier]
+        identifier   = [normalize_identifier(path), locale, format].compact.join '.'
+        asset_source = Manatee.assets[identifier] || Manatee.assets["#{identifier}.jst"]
         build_template asset_source, path, identifier, format
       end
 
