@@ -19,7 +19,6 @@ class AssetTagTest < Manatee::ViewTest
     %( "http://media.rubyonrails.org/audio/rails_blog_2.mov"          ) => %(<audio src="http://media.rubyonrails.org/audio/rails_blog_2.mov"></audio>),
     %( "//media.rubyonrails.org/audio/rails_blog_2.mov"               ) => %(<audio src="//media.rubyonrails.org/audio/rails_blog_2.mov"></audio>),
     %( "audio.mp3", "audio.ogg"                                       ) => %(<audio><source src="/audios/audio.mp3" /><source src="/audios/audio.ogg" /></audio>),
-    %( "audio.mp3", "audio.ogg"                                       ) => %(<audio><source src="/audios/audio.mp3" /><source src="/audios/audio.ogg" /></audio>),
     %( "audio.mp3", "audio.ogg", { autobuffer: true, controls: true } ) => %(<audio autobuffer="autobuffer" controls="controls"><source src="/audios/audio.mp3" /><source src="/audios/audio.ogg" /></audio>)
  }
 
@@ -77,7 +76,6 @@ class AssetTagTest < Manatee::ViewTest
     %( "xml.png"                                     ) => %(<img alt="Xml" src="/images/xml.png" />),
     %( "rss.gif",   { alt: "rss syndication" }       ) => %(<img alt="rss syndication" src="/images/rss.gif" />),
     %( "gold.png",  { size: "20" }                   ) => %(<img alt="Gold" height="20" src="/images/gold.png" width="20" />),
-    %( "gold.png",  { size: "45x70" }                ) => %(<img alt="Gold" height="70" src="/images/gold.png" width="45" />),
     %( "gold.png",  { size: "45x70" }                ) => %(<img alt="Gold" height="70" src="/images/gold.png" width="45" />),
     %( "error.png", { size: "45 x 70" }              ) => %(<img alt="Error" src="/images/error.png" />),
     %( "error.png", { size: "x" }                    ) => %(<img alt="Error" src="/images/error.png" />),
@@ -161,7 +159,6 @@ class AssetTagTest < Manatee::ViewTest
     %( "error.avi",   { size: "x" }                                         ) => %(<video src="/videos/error.avi"></video>),
     %( "http://media.rubyonrails.org/video/rails_blog_2.mov"                ) => %(<video src="http://media.rubyonrails.org/video/rails_blog_2.mov"></video>),
     %( "//media.rubyonrails.org/video/rails_blog_2.mov"                     ) => %(<video src="//media.rubyonrails.org/video/rails_blog_2.mov"></video>),
-    %( "multiple.ogg", "multiple.avi"                                       ) => %(<video><source src="/videos/multiple.ogg" /><source src="/videos/multiple.avi" /></video>),
     %( "multiple.ogg", "multiple.avi"                                       ) => %(<video><source src="/videos/multiple.ogg" /><source src="/videos/multiple.avi" /></video>),
     %( "multiple.ogg", "multiple.avi", { size: "160x120",  controls: true } ) => %(<video controls="controls" height="120" width="160"><source src="/videos/multiple.ogg" /><source src="/videos/multiple.avi" /></video>)
   }
