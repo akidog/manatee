@@ -68,6 +68,18 @@ module Manatee
   default_config(:javascript_path){ |c| c.assets_path + '/javascripts' }
   default_config(:stylesheet_path){ |c| c.assets_path + '/stylesheets' }
 
+  default_config(:digest_extensions){ |c| [] }
+
+  def self.digest_map
+    digests = Hash.new
+    assets.each_logical_path do |path|
+      if digest_extensions.include? File.extname(path)
+        digests[path] = assets[path].digest_path
+      end
+    end
+    digests
+  end
+
   def self.assets
     if defined? Rails
       ::Rails.application.assets

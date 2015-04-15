@@ -45,6 +45,7 @@ var <%= Manatee.renderer_namespace %> = {};
   this.helper           = helper.bind(this);
   this._templates       = <%= Manatee.template_namespace %>;
   this._context         = <%= Manatee.context.to_json %>;
+  this._digest_map      = <%= Manatee.digest_map.to_json %>;
   this._rendering_stack = [];
 
   this.helper('render',     render);

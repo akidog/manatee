@@ -10,30 +10,39 @@ helper 'computeAssetPath', (source, options = {}) ->
   else
     options['format']
 
-  if format
-    sharp_index = source.lastIndexOf '#'
-    query_index = source.lastIndexOf '?'
+  sharp_index = source.lastIndexOf '#'
+  query_index = source.lastIndexOf '?'
 
-    index = if sharp_index == -1
-      query_index
+  index = if sharp_index == -1
+    query_index
+  else
+    if query_index == -1
+      sharp_index
     else
-      if query_index == -1
+      if query_index > sharp_index
         sharp_index
       else
-        if query_index > sharp_index
-          sharp_index
-        else
-          query_index
+        query_index
 
-    if index == -1
-      source += '.' + format unless source[(-format.length-1)..-1] == ('.' + format)
+  if index == -1
+    prefix = source
+    sufix  = ''
+  else
+    prefix = source.slice 0, index
+    sufix  = source.slice index
+
+  formated_path = if format
+    if prefix[(-format.length-1)..-1] == ('.' + format)
+      prefix
     else
-      prefix = source.slice 0, index
-      sufix  = source.slice index
-      if prefix[(-format.length-1)..-1] == ('.' + format)
-        source = prefix + sufix
-      else
-        source = prefix + '.' + format + sufix
+      prefix + '.' + format
+  else
+    prefix
+
+  source = if @_digest_map && @_digest_map[formated_path]
+    @_digest_map[formated_path] + sufix
+  else
+    formated_path + sufix
 
   source = if source[0] == '/'
     source
@@ -43,6 +52,7 @@ helper 'computeAssetPath', (source, options = {}) ->
       prefix_path + source
     else
       prefix_path + '/' + source
+
 
   source = '/' + source if source[0] != '/'
 
