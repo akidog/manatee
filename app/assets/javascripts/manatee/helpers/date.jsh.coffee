@@ -1,7 +1,11 @@
 helper 'strftime', (date, pattern) ->
+  date = new Date(date) if typeof(date) == 'string'
   I18n.strftime date, pattern
 
 helper 'distanceOfTimeInWords', (from_time, to_time, withSeconds = false) ->
+  to_time   = new Date(to_time)   if typeof(to_time) == 'string'
+  from_time = new Date(from_time) if typeof(from_time) == 'string'
+
   distance_in_minutes = Math.abs((to_time - from_time) / 60000)
   [key, options] = switch
     when distance_in_minutes < 1
