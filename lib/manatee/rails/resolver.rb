@@ -18,7 +18,7 @@ module Manatee
           formats.each do |format|
             locales.each do |locale|
               template = find_asset_template path, locale, format
-              templates << template if template
+              templates.unshift template if template
             end
           end
 
