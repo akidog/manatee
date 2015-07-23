@@ -16,7 +16,7 @@ module Manatee
   # This method must be used to hook Manatee into Rails
   def self.subscribe_on_rails
     ActionView::Base.send :include, Manatee::Rails::Helper
-    ApplicationController.prepend_view_path Manatee::Rails::Resolver.new(Manatee.views_asset)
+    ActionController::Base.prepend_view_path Manatee::Rails::Resolver.new(Manatee.views_asset)
     ActionView::Template.register_template_handler :'jst', Manatee::Rails::Handler.instance
     Manatee::Sprockets::JshProcessor.subscribe ::Rails.application.assets
   end
