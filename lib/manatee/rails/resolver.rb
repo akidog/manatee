@@ -8,7 +8,7 @@ module Manatee
       end
 
       protected
-      def find_templates(name, prefix, partial, details)
+      def find_templates(name, prefix, partial, details, xfactor=true)
         if details[:handlers].include? :jst
           path    = normalize_path prefix, name, partial
           locales = normalize_array details[:locale]
