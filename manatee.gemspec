@@ -20,13 +20,12 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'i18n-js'
+  spec.add_dependency 'i18n-js', '3.0.0.rc12'
+  spec.add_dependency 'execjs', '~> 2.7.0'
+  spec.add_dependency 'sprockets', '>= 2.12.0'
+  spec.add_dependency 'coffee-script', '~> 2.4.0'
 
-  spec.add_dependency 'execjs'
-  spec.add_dependency 'sprockets'
-  spec.add_dependency 'coffee-script'
-
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'nokogiri'
+  spec.add_development_dependency 'rake', '~> 11.2'
+  spec.add_development_dependency 'bundler', '~> 1.13.0'
+  spec.add_development_dependency 'nokogiri', '~> 1.6.0'
 end
