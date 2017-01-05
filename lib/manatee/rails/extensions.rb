@@ -18,6 +18,6 @@ module Manatee
     ActionView::Base.send :include, Manatee::Rails::Helper
     ActionController::Base.prepend_view_path Manatee::Rails::Resolver.new(Manatee.views_asset)
     ActionView::Template.register_template_handler :'jst', Manatee::Rails::Handler.instance
-    Manatee::Sprockets::JshProcessor.subscribe ::Rails.application.assets
+    Manatee::Sprockets::JshProcessor.subscribe Manatee.assets
   end
 end

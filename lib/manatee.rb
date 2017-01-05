@@ -81,11 +81,7 @@ module Manatee
   end
 
   def self.assets
-    if defined? Rails
-      ::Rails.application.assets
-    else
-      @assets or raise("Manatee's Sprockets environment is not configured, call: Manatee.config{ |c| c.assets = sprockets_environment }")
-    end
+    @assets or raise("Manatee's Sprockets environment is not configured, call: Manatee.config{ |c| c.assets = sprockets_environment }")
   end
 
   def self.config(&block)
